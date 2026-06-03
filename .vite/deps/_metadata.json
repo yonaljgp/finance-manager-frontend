@@ -1,0 +1,64 @@
+{
+  "hash": "3507e162",
+  "configHash": "6c5e3b1f",
+  "lockfileHash": "4e7b6678",
+  "browserHash": "7270da80",
+  "optimized": {
+    "@mantine/core": {
+      "src": "../../node_modules/.pnpm/@mantine+core@9.2.1_@mantin_477b01edde6a57b0b9bf285c60376ab0/node_modules/@mantine/core/esm/index.mjs",
+      "file": "@mantine_core.js",
+      "fileHash": "b55b1d24",
+      "needsInterop": false
+    },
+    "@mantine/hooks": {
+      "src": "../../node_modules/.pnpm/@mantine+hooks@9.2.1_react@19.2.6/node_modules/@mantine/hooks/esm/index.mjs",
+      "file": "@mantine_hooks.js",
+      "fileHash": "bc2ef02f",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/.pnpm/lucide-react@1.16.0_react@19.2.6/node_modules/lucide-react/dist/esm/lucide-react.mjs",
+      "file": "lucide-react.js",
+      "fileHash": "4f70e098",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "9e25aff5",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/.pnpm/react-router-dom@7.15.1_rea_872a4ce6f3a66b3a0f684ac4b13c3b29/node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "3d0b4414",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/.pnpm/react@19.2.6/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "4eaf730a",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/.pnpm/react@19.2.6/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "3bcabefd",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "esm-D2H3yZkm": {
+      "file": "esm-D2H3yZkm.js",
+      "isDynamicEntry": false
+    },
+    "react-Dyb9tW5G": {
+      "file": "react-Dyb9tW5G.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-B-3iNMI6": {
+      "file": "react-dom-B-3iNMI6.js",
+      "isDynamicEntry": false
+    }
+  }
+}
