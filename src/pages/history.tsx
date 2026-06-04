@@ -1,27 +1,24 @@
 import { useState } from "react";
-import {
-  Search,
-  Filter,
-  Download,
-  ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
-} from "lucide-react";
+import SummaryCards from "../components/history/SummaryCards";
+import Filters from "../components/history/Filters";
+import TransactionsTable from "../components/history/TransactionsTable";
+import Pagination from "../components/history/Pagination";
+import type HistoryType from "../types/history";
 
 export default function History() {
-  const [filterType, setFilterType] = useState<"all" | "income" | "expense">(
+  const [filterType, setFilterType] = useState<"all" | "ingreso" | "gasto">(
     "all",
   );
   const [searchTerm, setSearchTerm] = useState("");
 
-  const transactions = [
+  const transactions: HistoryType[] = [
     {
       id: 1,
       date: "2026-05-24",
       description: "Supermercado Central",
       category: "Alimentación",
       amount: -125.5,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 2,
@@ -29,7 +26,7 @@ export default function History() {
       description: "Salario Mayo",
       category: "Ingreso",
       amount: 4500.0,
-      type: "income",
+      type: "ingreso",
     },
     {
       id: 3,
@@ -37,7 +34,7 @@ export default function History() {
       description: "Gasolina Shell",
       category: "Transporte",
       amount: -65.0,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 4,
@@ -45,7 +42,7 @@ export default function History() {
       description: "Netflix Suscripción",
       category: "Servicios",
       amount: -15.99,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 5,
@@ -53,7 +50,7 @@ export default function History() {
       description: "Freelance Proyecto Web",
       category: "Ingreso",
       amount: 800.0,
-      type: "income",
+      type: "ingreso",
     },
     {
       id: 6,
@@ -61,7 +58,7 @@ export default function History() {
       description: "Restaurante La Cocina",
       category: "Alimentación",
       amount: -45.8,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 7,
@@ -69,7 +66,7 @@ export default function History() {
       description: "Amazon Compra",
       category: "Otros",
       amount: -89.99,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 8,
@@ -77,7 +74,7 @@ export default function History() {
       description: "Gym Mensualidad",
       category: "Salud",
       amount: -50.0,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 9,
@@ -85,7 +82,7 @@ export default function History() {
       description: "Uber",
       category: "Transporte",
       amount: -12.5,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 10,
@@ -93,7 +90,7 @@ export default function History() {
       description: "Reembolso Compra",
       category: "Ingreso",
       amount: 35.0,
-      type: "income",
+      type: "ingreso",
     },
     {
       id: 11,
@@ -101,7 +98,7 @@ export default function History() {
       description: "Electricidad",
       category: "Servicios",
       amount: -85.0,
-      type: "expense",
+      type: "gasto",
     },
     {
       id: 12,
@@ -109,7 +106,7 @@ export default function History() {
       description: "Cine",
       category: "Entretenimiento",
       amount: -25.0,
-      type: "expense",
+      type: "gasto",
     },
   ];
 
@@ -122,12 +119,11 @@ export default function History() {
   });
 
   const totalIncome = filteredTransactions
-    .filter((t) => t.type === "income")
+    .filter((t) => t.type === "ingreso")
     .reduce((sum, t) => sum + t.amount, 0);
-
   const totalExpense = Math.abs(
     filteredTransactions
-      .filter((t) => t.type === "expense")
+      .filter((t) => t.type === "gasto")
       .reduce((sum, t) => sum + t.amount, 0),
   );
 
@@ -142,192 +138,15 @@ export default function History() {
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-card border border-border rounded-xl p-6">
-          <p className="text-sm text-muted-foreground">Total Ingresos</p>
-          <p className="text-2xl font-semibold text-green-500 mt-2">
-            +${totalIncome.toFixed(2)}
-          </p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-6">
-          <p className="text-sm text-muted-foreground">Total Gastos</p>
-          <p className="text-2xl font-semibold text-red-500 mt-2">
-            -${totalExpense.toFixed(2)}
-          </p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-6">
-          <p className="text-sm text-muted-foreground">Balance Neto</p>
-          <p
-            className={`text-2xl font-semibold mt-2 ${
-              totalIncome - totalExpense >= 0
-                ? "text-green-500"
-                : "text-red-500"
-            }`}
-          >
-            {totalIncome - totalExpense >= 0 ? "+" : ""}
-            {(totalIncome - totalExpense).toFixed(2)} USD
-          </p>
-        </div>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar transacciones..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilterType("all")}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                filterType === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              Todas
-            </button>
-            <button
-              onClick={() => setFilterType("income")}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                filterType === "income"
-                  ? "bg-green-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              Ingresos
-            </button>
-            <button
-              onClick={() => setFilterType("expense")}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                filterType === "expense"
-                  ? "bg-red-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              Gastos
-            </button>
-          </div>
-
-          {/* Export Button */}
-          <button className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center gap-2">
-            <Download className="w-5 h-5" />
-            Exportar
-          </button>
-        </div>
-      </div>
-
-      {/* Transactions List */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/30 dark:bg-muted/50 border-b border-border">
-              <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">
-                  Fecha
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">
-                  Descripción
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">
-                  Categoría
-                </th>
-                <th className="text-right px-6 py-4 text-sm font-medium text-muted-foreground">
-                  Monto
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filteredTransactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="hover:bg-accent/30 dark:hover:bg-accent/50 transition-colors"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      {transaction.date}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          transaction.type === "income"
-                            ? "bg-green-500/10"
-                            : "bg-red-500/10"
-                        }`}
-                      >
-                        {transaction.type === "income" ? (
-                          <ArrowUpRight className="w-5 h-5 text-green-500" />
-                        ) : (
-                          <ArrowDownRight className="w-5 h-5 text-red-500" />
-                        )}
-                      </div>
-                      <span className="font-medium text-foreground">
-                        {transaction.description}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                      {transaction.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span
-                      className={`font-semibold ${
-                        transaction.type === "income"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {transaction.amount > 0 ? "+" : ""}
-                      {transaction.amount.toFixed(2)} USD
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredTransactions.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No se encontraron transacciones
-            </p>
-          </div>
-        )}
-
-        {/* Pagination */}
-        <div className="border-t border-border px-6 py-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Mostrando {filteredTransactions.length} transacciones
-          </p>
-          <div className="flex gap-2">
-            <button className="px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors">
-              Anterior
-            </button>
-            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-              Siguiente
-            </button>
-          </div>
-        </div>
-      </div>
+      <SummaryCards totalIncome={totalIncome} totalExpense={totalExpense} />
+      <Filters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterType={filterType}
+        setFilterType={setFilterType}
+      />
+      <TransactionsTable transactions={filteredTransactions} />
+      <Pagination count={filteredTransactions.length} />
     </div>
   );
 }
