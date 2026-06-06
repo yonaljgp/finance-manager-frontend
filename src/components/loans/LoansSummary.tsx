@@ -13,7 +13,7 @@ export default function LoansSummary({
 }: Props) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div className="bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white rounded-xl p-6">
+      <div className="bg-active text-white rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="bg-white/20 dark:bg-white/10 p-3 rounded-lg"> </div>
           <span className="text-xs bg-white/20 dark:bg-white/10 px-3 py-1 rounded-full">

@@ -79,30 +79,95 @@ body {
   color: var(--foreground);
 }
 
-.bg-background { background-color: var(--background); }
-.text-foreground { color: var(--foreground); }
-.bg-card { background-color: var(--card); }
-.text-card-foreground { color: var(--card-foreground); }
-.bg-primary { background-color: var(--primary); }
-.text-primary { color: var(--primary); }
-.text-primary-foreground { color: var(--primary-foreground); }
-.bg-secondary { background-color: var(--secondary); }
-.text-secondary-foreground { color: var(--secondary-foreground); }
-.bg-muted { background-color: var(--muted); }
-.text-muted-foreground { color: var(--muted-foreground); }
-.bg-accent { background-color: var(--accent); }
-.text-accent-foreground { color: var(--accent-foreground); }
-.bg-destructive { background-color: var(--destructive); }
-.text-destructive-foreground { color: var(--destructive-foreground); }
-.border-border { border-color: var(--border); }
-.bg-input { background-color: var(--input); }
-.bg-input-background { background-color: var(--input-background); }
-.bg-switch-background { background-color: var(--switch-background); }
-.bg-sidebar { background-color: var(--sidebar); }
-.text-sidebar-foreground { color: var(--sidebar-foreground); }
-.bg-sidebar-primary { background-color: var(--sidebar-primary); }
-.text-sidebar-primary-foreground { color: var(--sidebar-primary-foreground); }
-.bg-sidebar-accent { background-color: var(--sidebar-accent); }
-.text-sidebar-accent-foreground { color: var(--sidebar-accent-foreground); }
-.border-sidebar-border { border-color: var(--sidebar-border); }
-.shadow-sidebar { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); }
+.bg-background {
+  background-color: var(--background);
+}
+.text-foreground {
+  color: var(--foreground);
+}
+.bg-card {
+  background-color: var(--card);
+}
+.text-card-foreground {
+  color: var(--card-foreground);
+}
+.bg-primary {
+  background-color: var(--primary);
+}
+.text-primary {
+  color: var(--primary);
+}
+.text-primary-foreground {
+  color: var(--primary-foreground);
+}
+.bg-secondary {
+  background-color: var(--secondary);
+}
+.text-secondary-foreground {
+  color: var(--secondary-foreground);
+}
+.bg-muted {
+  background-color: var(--muted);
+}
+.text-muted-foreground {
+  color: var(--muted-foreground);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.text-accent-foreground {
+  color: var(--accent-foreground);
+}
+.bg-destructive {
+  background-color: var(--destructive);
+}
+.text-destructive-foreground {
+  color: var(--destructive-foreground);
+}
+.border-border {
+  border-color: var(--border);
+}
+.bg-input {
+  background-color: var(--input);
+}
+.bg-input-background {
+  background-color: var(--input-background);
+}
+.bg-switch-background {
+  background-color: var(--switch-background);
+}
+.bg-sidebar {
+  background-color: var(--sidebar);
+}
+.text-sidebar-foreground {
+  color: var(--sidebar-foreground);
+}
+.bg-sidebar-primary {
+  background-color: var(--sidebar-primary);
+}
+.text-sidebar-primary-foreground {
+  color: var(--sidebar-primary-foreground);
+}
+.bg-sidebar-accent {
+  background-color: var(--sidebar-accent);
+}
+.text-sidebar-accent-foreground {
+  color: var(--sidebar-accent-foreground);
+}
+.border-sidebar-border {
+  border-color: var(--sidebar-border);
+}
+.shadow-sidebar {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.link {
+  color: oklch(0.627 0.265 303.9);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+.link:hover {
+  text-decoration: underline;
+}
+.bg-active {
+  background-color: oklch(0.627 0.265 303.9);
+}
