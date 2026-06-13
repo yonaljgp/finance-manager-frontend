@@ -53,11 +53,24 @@ function Register() {
   const passwordStrength = getPasswordStrength(password);
 
   const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    console.log("Register data:", data);
+    fetch(`${import.meta.env.VITE_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("register result:", result);
+      })
+      .catch((error) => {
+        console.error("Error registering:", error);
+      });
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-background">
+    <div className="h-screen flex items-center justify-center bg-background">
       <div className="flex h-150 md:h-160 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl py-6 pt-5 w-full max-w-85 md:max-w-md">
         <h1 className="text-3xl font-bold mb-6 mt-2">Registrate</h1>
         <p className="text-sm mb-6">maneja tus finanzas con confianza</p>
@@ -74,7 +87,7 @@ function Register() {
               type="text"
               placeholder="Nombre"
               {...register("name")}
-              className="border border-gray-300 w-full rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 w-full rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.name && (
               <span className="text-sm text-red-500">
@@ -90,7 +103,7 @@ function Register() {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.email && (
               <span className="text-sm text-red-500">
@@ -107,7 +120,7 @@ function Register() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Contraseña"
                 {...register("password")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
               <button
                 type="button"
@@ -132,14 +145,8 @@ function Register() {
               <Progress
                 size="xs"
                 color={getPasswordLabel(passwordStrength).color}
-                value={passwordStrength < 30 ? 0 : 100}
+                value={passwordStrength < 40 ? 0 : 100}
                 transitionDuration={0}
-              />
-              <Progress
-                size="xs"
-                color={getPasswordLabel(passwordStrength).color}
-                transitionDuration={0}
-                value={passwordStrength < 30 ? 0 : 100}
               />
               <Progress
                 size="xs"
@@ -151,10 +158,23 @@ function Register() {
                 size="xs"
                 color={getPasswordLabel(passwordStrength).color}
                 transitionDuration={0}
-                value={passwordStrength < 70 ? 0 : 100}
+                value={passwordStrength < 60 ? 0 : 100}
+              />
+              <Progress
+                size="xs"
+                color={getPasswordLabel(passwordStrength).color}
+                transitionDuration={0}
+                value={passwordStrength < 90 ? 0 : 100}
               />
             </Group>
           </div>
+          <p className="text-sm gap-1 flex ml-2">
+            ¿Ya tiene cuenta?{" "}
+            <a href="/auth/login" className="link font-bold">
+              Inicia Sesión
+            </a>
+          </p>
+
           <button
             type="submit"
             className="bg-active text-white py-2 px-4 my-3 rounded-md"

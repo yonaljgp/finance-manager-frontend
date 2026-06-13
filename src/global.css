@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --color-active: var(--active);
+}
+
 :root {
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -31,6 +35,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  --active: oklch(0.627 0.26 304.9);
 }
 
 :root[data-mantine-color-scheme="dark"] {
@@ -127,6 +132,18 @@ body {
 .border-border {
   border-color: var(--border);
 }
+.bg-active {
+  background-color: var(--active);
+}
+.text-active {
+  color: var(--active);
+}
+.border-active {
+  border-color: var(--active);
+}
+.ring-active {
+  --tw-ring-color: var(--active);
+}
 .bg-input {
   background-color: var(--input);
 }
@@ -161,13 +178,10 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 .link {
-  color: oklch(0.627 0.265 303.9);
+  color: var(--active);
   text-decoration: none;
   transition: color 0.2s ease-in-out;
 }
 .link:hover {
   text-decoration: underline;
-}
-.bg-active {
-  background-color: oklch(0.627 0.265 303.9);
 }

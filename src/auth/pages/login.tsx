@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Debe ser un email válido." }),
-  password: z.string().min(6, { message: "contiene 6 caracteres" }),
+  password: z.string().min(6, { message: "Almenos 6 caracteres" }),
 });
 
 function LoginPage() {
@@ -20,12 +20,25 @@ function LoginPage() {
 
   const [viewPassword, setViewPassword] = useState(false);
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    console.log("Login data:", data);
+    fetch(`${import.meta.env.VITE_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Login result:", result);
+      })
+      .catch((error) => {
+        console.error("Error logging in:", error);
+      });
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-background">
-      <div className="flex h-1/2 md:h-120 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-6 pt-5 w-full max-w-85 md:max-w-sm">
+    <div className="h-screen flex items-center justify-center bg-background">
+      <div className="flex h-1/2 md:h-130 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-6 pt-5 w-full max-w-85 md:max-w-sm">
         <h1 className="text-3xl font-bold mb-10 mt-6">Inicia Sesión</h1>
         <form
           noValidate
@@ -40,7 +53,7 @@ function LoginPage() {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:"
+              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.email && (
               <span className="text-sm text-red-500">
@@ -57,7 +70,7 @@ function LoginPage() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Contraseña"
                 {...register("password")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
               <button
                 type="button"
@@ -68,13 +81,9 @@ function LoginPage() {
                 title={
                   viewPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                 }
-                className="absolute inset-y-0 right-3 flex items-center justify-center rounded-full"
+                className="absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-gray-500"
               >
-                {viewPassword ? (
-                  <Eye size={16} className="bg-foreground" />
-                ) : (
-                  <EyeOff size={16} />
-                )}
+                {viewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
@@ -82,6 +91,11 @@ function LoginPage() {
                 {errors.password.message}
               </span>
             )}
+            <p className="flex gap-1 mt-1 font-semibold text-sm">
+              <a href="/auth/forgot-password" className="link font-bold">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </p>
           </div>
           <button
             type="submit"
@@ -93,7 +107,7 @@ function LoginPage() {
         <div className="flex items-center gap-2 my-6">
           <p className="flex gap-1 text-sm">
             ¿No tienes una cuenta?
-            <a href="/auth/register" className="link">
+            <a href="/auth/register" className="link font-bold">
               Regístrate
             </a>
           </p>
