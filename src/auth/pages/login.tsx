@@ -3,6 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Debe ser un email válido." }),
@@ -10,35 +12,30 @@ const loginSchema = z.object({
 });
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { login, isLoading, error: authError } = useAuth();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
   const [viewPassword, setViewPassword] = useState(false);
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Login result:", result);
-      })
-      .catch((error) => {
-        console.error("Error logging in:", error);
-      });
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    const { email, password } = data;
+    try {
+      await login(email, password);
+      navigate("/"); // Redirigir tras éxito
+    } catch (err) {
+      // El error ya se captura en el estado 'authError' del hook
+    }
   };
 
   return (
     <div className="h-screen flex items-center justify-center bg-background">
-      <div className="flex h-1/2 md:h-130 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-6 pt-5 w-full max-w-85 md:max-w-sm">
+      <div className="flex h-60vhp md:h-130 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-6 pt-5 w-full max-w-85 md:max-w-sm">
         <h1 className="text-3xl font-bold mb-10 mt-6">Inicia Sesión</h1>
         <form
           noValidate
@@ -81,7 +78,7 @@ function LoginPage() {
                 title={
                   viewPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                 }
-                className="absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-gray-500"
+                className="button absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-gray-500"
               >
                 {viewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -97,11 +94,19 @@ function LoginPage() {
               </a>
             </p>
           </div>
+
+          {authError && (
+            <p className="text-sm text-red-500 text-center font-medium">
+              {authError}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="bg-active text-white py-2 px-4 rounded-md"
+            disabled={isLoading || !isValid}
+            className={`button bg-active text-white py-2 px-4 rounded-md ${isLoading || !isValid ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            Login
+            {isLoading ? "Iniciando sesión..." : "Login"}
           </button>
         </form>
         <div className="flex items-center gap-2 my-6">

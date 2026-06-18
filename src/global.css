@@ -185,3 +185,23 @@ body {
 .link:hover {
   text-decoration: underline;
 }
+
+.button {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.button:hover {
+  filter: brightness(1.1);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+  filter: brightness(0.9);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}

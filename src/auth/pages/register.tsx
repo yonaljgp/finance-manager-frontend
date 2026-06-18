@@ -4,6 +4,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { Progress, Group } from "@mantine/core";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const registerSchema = z.object({
   name: z
@@ -43,30 +45,27 @@ function Register() {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { password: "" },
   });
   const [viewPassword, setViewPassword] = useState(false);
+  const { register: registerUser, isLoading, error: serverError } = useAuth();
+  const navigate = useNavigate();
+
   const password = useWatch({ control, name: "password", defaultValue: "" });
   const passwordStrength = getPasswordStrength(password);
 
-  const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("register result:", result);
-      })
-      .catch((error) => {
-        console.error("Error registering:", error);
-      });
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    try {
+      await registerUser(data);
+      // Si el registro es exitoso y loguea automáticamente:
+      navigate("/auth/login");
+    } catch (err) {
+      // El error ya está en 'serverError' del hook para mostrarlo en la UI
+      console.error("Fallo el registro", err);
+    }
   };
 
   return (
@@ -125,6 +124,7 @@ function Register() {
               <button
                 type="button"
                 onClick={() => setViewPassword(!viewPassword)}
+                disabled={isLoading || !isValid}
                 aria-label={
                   viewPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                 }
@@ -175,11 +175,16 @@ function Register() {
             </a>
           </p>
 
+          {serverError && (
+            <p className="text-sm text-red-500 text-center">{serverError}</p>
+          )}
+
           <button
             type="submit"
-            className="bg-active text-white py-2 px-4 my-3 rounded-md"
+            disabled={isLoading || !isValid}
+            className={`button bg-active text-white py-2 px-4 my-3 rounded-md ${isLoading || !isValid ? "opacity-50" : ""}`}
           >
-            Registrate
+            {isLoading ? "Cargando..." : "Registrate"}
           </button>
         </form>
       </div>

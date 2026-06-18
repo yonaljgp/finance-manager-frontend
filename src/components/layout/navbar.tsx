@@ -1,11 +1,31 @@
 import { NavLink } from "react-router-dom";
-import { Home, PlusCircle, CreditCard, History, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+  Home,
+  PlusCircle,
+  CreditCard,
+  History,
+  Menu,
+  X,
+  UserCircle,
+  LogOut,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useClickOutside } from "@mantine/hooks";
+import type { LucideIcon } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+
+interface NavItem {
+  to: string;
+  icon: LucideIcon;
+  label: string;
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useClickOutside(() => setIsOpen(false));
+  const { logout } = useAuth();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useClickOutside(() => setIsUserMenuOpen(false));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,7 +36,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { to: "/", icon: Home, label: "Inicio" },
     { to: "/crear-transaccion", icon: PlusCircle, label: "Transacción" },
     { to: "/prestamos", icon: CreditCard, label: "Préstamos" },
@@ -24,7 +44,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="flex flex-col bg-background transition-colors duration-300">
+    <div className="flex flex-col bg-background transition-colors duration-300 relative">
       <header className="w-full h-20 p-4 border-b bg-sidebar border-border flex shadow-sidebar items-center justify-between bg-card">
         <h2 className="text-xl font-semibold">LOGO</h2>
         <nav className="hidden lg:flex   items-center gap-4">
@@ -46,6 +66,31 @@ export default function Navbar() {
             </NavLink>
           ))}
         </nav>
+        {/* User Profile and Logout Dropdown */}
+        <div className="hidden lg:block relative" ref={userMenuRef}>
+          <button
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="button flex items-center gap-2 px-4 py-2 rounded-lg text-foreground hover:bg-accent"
+          >
+            <UserCircle className="w-5 h-5" />
+            <span>Yonalfred Guzman</span> {/* Placeholder for user's name */}
+          </button>
+          {isUserMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-30">
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsUserMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent button"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         <div ref={menuRef} className="relative lg:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -104,7 +149,11 @@ export default function Navbar() {
                 </p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)}>
+            <button
+              onClick={() => logout()}
+              className="button flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
               <h4>Cerrar Sesión</h4>
             </button>
           </aside>

@@ -1,14 +1,35 @@
 import { PinInput } from "@mantine/core";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function VerifyEmail() {
   const [value, setValue] = useState("");
+  const [isLoading, setIsLoaading] = useState(false);
+  const navigate = useNavigate();
 
   // Función que se dispara únicamente al hacer clic en el botón
-  const handleValidate = () => {
-    const numberPin = Number(value); // Conversión a número aquí
-    console.log("Enviando código para validación (como número):", numberPin);
-    // Aquí colocas tu lógica de envío al servidor o API
+  const handleValidate = async () => {
+    const numberPin = Number(value);
+    setIsLoaading(true);
+    try {
+      const sendPin = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ pin: numberPin }),
+        },
+      );
+      setIsLoaading(false);
+      if (sendPin.ok) {
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Error sending pin:", err);
+      navigate(0);
+    }
   };
 
   return (
@@ -41,11 +62,11 @@ function VerifyEmail() {
           />
 
           <button
-            className="bg-active flex items-center justify-center text-white cursor-pointer font-bold! rounded-md mt-10 h-10 p-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`button bg-active flex items-center justify-center text-white font-bold! rounded-md mt-10 h-10 p-6 disabled:opacity-50 disabled:cursor-not-allowed`}
             disabled={value.length < 6}
             onClick={handleValidate} // Aquí llamamos a la función declarada
           >
-            Validar Código
+            {isLoading ? "Validando..." : "Validar Código"}
           </button>
         </form>
       </div>
