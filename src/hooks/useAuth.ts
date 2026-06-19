@@ -1,69 +1,98 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { api, authApi, httpClient } from "../services/httpClient";
+import {
+  setGlobalAccessToken,
+  getGlobalAccessToken,
+  setOnSessionExpiredCallback,
+  extractAccessToken,
+} from "../services/authInterceptor";
 
-// Define una interfaz para los datos de registro para evitar 'any'
 interface RegisterData {
   email: string;
   password: string;
-  // Agrega aquí cualquier otra propiedad que tu API de registro espere
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+interface LoginResponse {
+  user: string;
+  access_token: string;
+}
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError(error) && error.response?.data?.message) {
+    return error.response.data.message as string;
+  }
+  return fallback;
+};
 
 export const useAuth = () => {
   const [user, setUser] = useState<string | null>(null);
-  const [accesstoken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(
+    getGlobalAccessToken(),
+  );
+  const [isAuth, setIsAuth] = useState<boolean>(!!getGlobalAccessToken());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAuth, setIsAuth] = useState(false);
+  const navigate = useNavigate();
 
-  const login = useCallback(async (email: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await api.post(`/auth/login`, { email, password });
-
-      const { user, accessToken } = response.data;
-
-      // Guardar sesión
-      if (!isAuth) setIsAuth(true);
-      setAccessToken(accessToken);
-      setUser(user);
-      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-
-      return response.data;
-    } catch (error: unknown) {
-      let message = "Error al iniciar sesión";
-      if (axios.isAxiosError(error) && error.response) {
-        message = error.response.data?.message || message;
-      }
-      setError(message);
-      throw new Error(message, { cause: error });
-    } finally {
-      setIsLoading(false);
-    }
+  const updateToken = useCallback((token: string | null) => {
+    setGlobalAccessToken(token);
+    setAccessToken(token);
+    setIsAuth(!!token);
   }, []);
+
+  useEffect(() => {
+    // Al montar el hook, definimos qué hacer si expira la sesión desde el interceptor
+    setOnSessionExpiredCallback(() => {
+      setUser(null);
+      updateToken(null);
+      navigate("/auth/login");
+    });
+
+    return () => {
+      // Limpiamos el callback al desmontar, para evitar leaks
+      setOnSessionExpiredCallback(null);
+    };
+  }, [navigate, updateToken]);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const data = await authApi.login<LoginResponse>(email, password);
+        const token = extractAccessToken(data);
+        if (token) {
+          updateToken(token);
+        } else {
+          // Si por alguna razón el backend envía el token en la raíz, usamos la interfaz
+          updateToken(data.access_token);
+        }
+        setUser(data.user);
+        return data;
+      } catch (err) {
+        const message = getErrorMessage(err, "Error al iniciar sesión");
+        setError(message);
+        throw new Error(message, { cause: err });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [updateToken],
+  );
 
   const register = useCallback(async (userData: RegisterData) => {
     setIsLoading(true);
     setError(null);
+
     try {
-      const response = await api.post(`/auth/register`, userData);
-      return response.data;
-    } catch (error: unknown) {
-      let message = "Error al registrarse";
-      if (axios.isAxiosError(error) && error.response) {
-        message = error.response.data?.message || message;
-      }
+      return await authApi.register(userData);
+    } catch (err) {
+      const message = getErrorMessage(err, "Error al registrarse");
       setError(message);
-      throw new Error(message, { cause: error });
+      throw new Error(message, { cause: err });
     } finally {
       setIsLoading(false);
     }
@@ -71,25 +100,20 @@ export const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      const response = await api.post("/auth/logout");
-      if (response.status === 200) {
-        setIsAuth(false);
-        setUser(null);
-        delete api.defaults.headers.common["Authorization"];
-      }
-    } catch (error: unknown) {
-      let message = "Error al cerrar sesión";
-      if (axios.isAxiosError(error) && error.response) {
-        message = `error: ${error.response.data?.message || message}`;
-      }
-      return message;
+      await httpClient.post("/auth/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.error("Error al cerrar sesión", err);
+    } finally {
+      updateToken(null);
+      setUser(null);
+      navigate("/auth/login");
     }
-  }, []);
+  }, [navigate, updateToken]);
 
   return {
-    isAuth,
     user,
-    accesstoken,
+    accessToken,
+    isAuth,
     isLoading,
     error,
     login,
@@ -97,3 +121,5 @@ export const useAuth = () => {
     logout,
   };
 };
+
+export { api };
