@@ -7,6 +7,7 @@ import {
   getGlobalAccessToken,
   setOnSessionExpiredCallback,
   extractAccessToken,
+  refreshAccessToken,
 } from "../services/authInterceptor";
 
 interface RegisterData {
@@ -33,6 +34,7 @@ export const useAuth = () => {
   );
   const [isAuth, setIsAuth] = useState<boolean>(!!getGlobalAccessToken());
   const [isLoading, setIsLoading] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -42,38 +44,54 @@ export const useAuth = () => {
     setIsAuth(!!token);
   }, []);
 
+  // Efecto 1: callback de sesion expirada desde el interceptor
   useEffect(() => {
-    // Al montar el hook, definimos qué hacer si expira la sesión desde el interceptor
     setOnSessionExpiredCallback(() => {
       setUser(null);
       updateToken(null);
       navigate("/auth/login");
     });
-
     return () => {
-      // Limpiamos el callback al desmontar, para evitar leaks
       setOnSessionExpiredCallback(null);
     };
   }, [navigate, updateToken]);
+
+  useEffect(() => {
+    const bootstrap = async () => {
+      if (getGlobalAccessToken()) {
+        setIsBootstrapping(false);
+        return;
+      }
+
+      try {
+        const token = await refreshAccessToken();
+        if (token) updateToken(token);
+      } catch {
+        updateToken(null);
+      } finally {
+        setIsBootstrapping(false);
+      }
+    };
+
+    bootstrap();
+  }, [updateToken]);
 
   const login = useCallback(
     async (email: string, password: string) => {
       setIsLoading(true);
       setError(null);
-
       try {
         const data = await authApi.login<LoginResponse>(email, password);
         const token = extractAccessToken(data);
         if (token) {
           updateToken(token);
         } else {
-          // Si por alguna razón el backend envía el token en la raíz, usamos la interfaz
           updateToken(data.access_token);
         }
         setUser(data.user);
         return data;
       } catch (err) {
-        const message = getErrorMessage(err, "Error al iniciar sesión");
+        const message = getErrorMessage(err, "Error al iniciar sesion");
         setError(message);
         throw new Error(message, { cause: err });
       } finally {
@@ -86,7 +104,6 @@ export const useAuth = () => {
   const register = useCallback(async (userData: RegisterData) => {
     setIsLoading(true);
     setError(null);
-
     try {
       return await authApi.register(userData);
     } catch (err) {
@@ -102,7 +119,7 @@ export const useAuth = () => {
     try {
       await httpClient.post("/auth/logout", {}, { withCredentials: true });
     } catch (err) {
-      console.error("Error al cerrar sesión", err);
+      console.error("Error al cerrar sesion", err);
     } finally {
       updateToken(null);
       setUser(null);
@@ -115,6 +132,7 @@ export const useAuth = () => {
     accessToken,
     isAuth,
     isLoading,
+    isBootstrapping,
     error,
     login,
     register,
