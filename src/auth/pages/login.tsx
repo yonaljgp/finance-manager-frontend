@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Debe ser un email válido." }),
@@ -89,9 +89,9 @@ function LoginPage() {
               </span>
             )}
             <p className="flex gap-1 mt-1 font-semibold text-sm">
-              <a href="/auth/forgot-password" className="link font-bold">
+              <Link to="/auth/forgot-password" className="link font-bold">
                 ¿Olvidaste tu contraseña?
-              </a>
+              </Link>
             </p>
           </div>
 
@@ -112,9 +112,9 @@ function LoginPage() {
         <div className="flex items-center gap-2 my-6">
           <p className="flex gap-1 text-sm">
             ¿No tienes una cuenta?
-            <a href="/auth/register" className="link font-bold">
+            <Link to="/auth/register" className="link font-bold">
               Regístrate
-            </a>
+            </Link>
           </p>
         </div>
       </div>

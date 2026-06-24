@@ -5,7 +5,7 @@ import { Progress, Group } from "@mantine/core";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const registerSchema = z.object({
   name: z
@@ -170,9 +170,9 @@ function Register() {
           </div>
           <p className="text-sm gap-1 flex ml-2">
             ¿Ya tiene cuenta?{" "}
-            <a href="/auth/login" className="link font-bold">
+            <Link to="/auth/login" className="link font-bold">
               Inicia Sesión
-            </a>
+            </Link>
           </p>
 
           {serverError && (

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import RequireState from "./RequireState";
 import Home from "../pages/home";
 import Transactions from "../pages/transactions";
 import History from "../pages/history";
@@ -8,7 +9,9 @@ import Footer from "../components/layout/footer";
 import Register from "../auth/pages/register";
 import LoginPage from "../auth/pages/login";
 import NotFound from "../pages/notFound";
-import ForgotPassword from "../auth/pages/fotgotPassword";
+import InputEmail from "../auth/pages/forgotPassword/inputEmail";
+import VerifyCode from "../auth/pages/forgotPassword/verifyCode";
+import NewPassword from "../auth/pages/forgotPassword/newPassword";
 import VerifyEmail from "../auth/pages/verifyEmail";
 import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -45,20 +48,39 @@ function RoutesPages() {
         <div className="flex min-h-screen flex-col">
           <main className="flex-1 flex flex-col">
             <Routes>
-              //Rutas Protegidas
+              {/* Rutas Protegidas */}
               <Route path="/" element={<ProtectedRoutes />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/crear-transaccion" element={<Transactions />} />
                 <Route path="/historial" element={<History />} />
                 <Route path="/prestamos" element={<Loans />} />
               </Route>
-              //Rutas Auth
+              {/* Rutas Auth */}
               <Route element={<AuthRoutes />}>
                 <Route path="/auth/register" element={<Register />} />
                 <Route path="/auth/login" element={<LoginPage />} />
+                <Route path="/auth/forgot-password" element={<InputEmail />} />
                 <Route
-                  path="/auth/forgot-password"
-                  element={<ForgotPassword />}
+                  path="/auth/verify-code"
+                  element={
+                    <RequireState
+                      keys={["email"]}
+                      redirectTo="/auth/forgot-password"
+                    >
+                      <VerifyCode />
+                    </RequireState>
+                  }
+                />
+                <Route
+                  path="/auth/reset-password"
+                  element={
+                    <RequireState
+                      keys={["email", "code"]}
+                      redirectTo="/auth/forgot-password"
+                    >
+                      <NewPassword />
+                    </RequireState>
+                  }
                 />
                 <Route path="/auth/verify-email" element={<VerifyEmail />} />
               </Route>

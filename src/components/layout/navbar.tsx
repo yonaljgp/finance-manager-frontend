@@ -9,7 +9,7 @@ import {
   UserCircle,
   LogOut,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useClickOutside } from "@mantine/hooks";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
@@ -73,7 +73,7 @@ export default function Navbar() {
             className="button flex items-center gap-2 px-4 py-2 rounded-lg text-foreground hover:bg-accent"
           >
             <UserCircle className="w-5 h-5" />
-            <span>Yonalfred Guzman</span> {/* Placeholder for user's name */}
+            <span>Usuario</span>
           </button>
           {isUserMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-30">

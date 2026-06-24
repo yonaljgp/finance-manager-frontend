@@ -28,7 +28,6 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 };
 
 export const useAuth = () => {
-  const [user, setUser] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(
     getGlobalAccessToken(),
   );
@@ -47,7 +46,6 @@ export const useAuth = () => {
   // Efecto 1: callback de sesion expirada desde el interceptor
   useEffect(() => {
     setOnSessionExpiredCallback(() => {
-      setUser(null);
       updateToken(null);
       navigate("/auth/login");
     });
@@ -88,7 +86,6 @@ export const useAuth = () => {
         } else {
           updateToken(data.access_token);
         }
-        setUser(data.user);
         return data;
       } catch (err) {
         const message = getErrorMessage(err, "Error al iniciar sesion");
@@ -122,13 +119,85 @@ export const useAuth = () => {
       console.error("Error al cerrar sesion", err);
     } finally {
       updateToken(null);
-      setUser(null);
       navigate("/auth/login");
     }
   }, [navigate, updateToken]);
 
+  const forgotPassword = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await api.post("/auth/forgot-password", { email });
+    } catch (err) {
+      const message = getErrorMessage(err, "Error al enviar el código");
+      setError(message);
+      throw new Error(message, { cause: err });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const verifyCode = useCallback(async (email: string, code: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await api.post("/auth/verify-code", { email, code });
+    } catch (err) {
+      console.log(err);
+      const axiosError = err as { response?: { status: number } };
+      const status = axiosError.response?.status;
+      let message;
+
+      if (status === 401) {
+        message = "Tu sesión ha expirado o el código no es válido.";
+      } else if (status === 404) {
+        message = "Intente nuevamente";
+        setTimeout(() => {
+          navigate("/auth/forgot-password");
+        }, 2000);
+      } else {
+        message = getErrorMessage(err, "Código inválido o expirado");
+      }
+      throw new Error(message, { cause: err });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const resetPassword = useCallback(
+    async (email: string, code: string, password: string) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await api.post("/auth/reset-password", { email, code, password });
+      } catch (err) {
+        const message = getErrorMessage(
+          err,
+          "Error al restablecer la contraseña",
+        );
+        setError(message);
+        throw new Error(message, { cause: err });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
+  const resendCode = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await api.post("/auth/resend-code", { email });
+    } catch (err) {
+      const message = getErrorMessage(err, "Error al reenviar el código");
+      setError(message);
+      throw new Error(message, { cause: err });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return {
-    user,
     accessToken,
     isAuth,
     isLoading,
@@ -137,6 +206,10 @@ export const useAuth = () => {
     login,
     register,
     logout,
+    forgotPassword,
+    verifyCode,
+    resetPassword,
+    resendCode,
   };
 };
 

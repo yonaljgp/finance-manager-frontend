@@ -7,6 +7,10 @@ const authRoutes = [
   "/auth/verify-email",
   "/auth/register",
   "/auth/logout",
+  "/auth/verify-code",
+  "/auth/forgot-password",
+  "/auth/verify-code",
+  "/auth/resend-code",
 ];
 
 let globalAccessToken: string | null = null;
@@ -88,7 +92,6 @@ httpClient.interceptors.response.use(
       // Si la petición que falló fue el propio refresh, no intentamos refrescar de nuevo
       if (isAuthRoute) {
         globalAccessToken = null;
-        if (onSessionExpiredCallback) onSessionExpiredCallback();
         return Promise.reject(error);
       }
 
