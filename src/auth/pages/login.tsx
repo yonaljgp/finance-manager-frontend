@@ -96,7 +96,7 @@ function LoginPage() {
           </div>
 
           {authError && (
-            <p className="text-sm text-red-500 text-center font-medium">
+            <p className="text-sm text-red-500 text-center font-semibold">
               {authError}
             </p>
           )}

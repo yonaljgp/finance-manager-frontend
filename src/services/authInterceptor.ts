@@ -1,17 +1,40 @@
 import { httpClient } from "./httpClient";
 
-const authRoutes = [
+const AUTH_ROUTES = [
   "/auth/login",
-  "/auth/refresh",
-  "/auth/forgot-password",
-  "/auth/verify-email",
+  "/auth/refresh-token",
   "/auth/register",
   "/auth/logout",
-  "/auth/verify-code",
-  "/auth/forgot-password",
-  "/auth/verify-code",
-  "/auth/resend-code",
-];
+  "/auth/email/send-code",
+  "/auth/email/confirm",
+  "/auth/password/forgot",
+  "/auth/password/forgot/resend",
+  "/auth/password/verify-code",
+  "/auth/password/reset",
+] as const;
+
+const isAuthRoute = (url?: string): boolean =>
+  !!url && AUTH_ROUTES.some((route) => url.includes(route));
+
+type AuthHeaders = Record<string, unknown> & {
+  set?: (name: string, value: string) => void;
+  Authorization?: string;
+};
+
+const setAuthHeader = (headers: AuthHeaders, token: string): void => {
+  if (typeof headers.set === "function") {
+    headers.set("Authorization", `Bearer ${token}`);
+  } else {
+    headers.Authorization = `Bearer ${token}`;
+  }
+};
+
+const getAuthHeader = (headers: AuthHeaders): string | undefined => {
+  if (typeof headers.get === "function") {
+    return headers.get("Authorization") ?? undefined;
+  }
+  return headers.Authorization;
+};
 
 let globalAccessToken: string | null = null;
 let refreshTask: Promise<string> | null = null;
@@ -46,10 +69,9 @@ export const setOnSessionExpiredCallback = (callback: (() => void) | null) => {
 export const refreshAccessToken = (): Promise<string> => {
   if (!refreshTask) {
     refreshTask = httpClient
-      .post("/auth/refresh", {}, { withCredentials: true })
+      .post("/auth/refresh-token", {}, { withCredentials: true })
       .then((res) => {
         const newAccessToken = extractAccessToken(res.data);
-        console.log("refresh");
         if (!newAccessToken)
           throw new Error("El refresh no devolvió access token");
         globalAccessToken = newAccessToken;
@@ -66,11 +88,7 @@ export const refreshAccessToken = (): Promise<string> => {
 httpClient.interceptors.request.use(
   (config) => {
     if (globalAccessToken) {
-      if (typeof config.headers.set === "function") {
-        config.headers.set("Authorization", `Bearer ${globalAccessToken}`);
-      } else {
-        config.headers.Authorization = `Bearer ${globalAccessToken}`;
-      }
+      setAuthHeader(config.headers as AuthHeaders, globalAccessToken);
     }
     return config;
   },
@@ -81,69 +99,47 @@ httpClient.interceptors.request.use(
 httpClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const prevRequest = error?.config;
+    const prevRequest = error?.config as
+      | (typeof error.config & { sent?: boolean; headers?: AuthHeaders })
+      | undefined;
     if (!prevRequest) return Promise.reject(error);
 
-    const isAuthRoute = authRoutes.some((route) =>
-      prevRequest.url?.includes(route),
-    );
-
-    if (error?.response?.status === 401 && !prevRequest?.sent) {
-      // Si la petición que falló fue el propio refresh, no intentamos refrescar de nuevo
-      if (isAuthRoute) {
-        globalAccessToken = null;
-        return Promise.reject(error);
-      }
-
-      // Obtener el token que se usó en esta petición
-      const authHeader =
-        prevRequest.headers?.Authorization ||
-        (typeof prevRequest.headers?.get === "function"
-          ? prevRequest.headers.get("Authorization")
-          : undefined);
-
-      // Si ya tenemos un token global diferente del que usó esta petición,
-      // significa que otra petición ya hizo el refresh con éxito.
-      // Reintentamos directamente con el nuevo token sin refrescar otra vez.
-      if (globalAccessToken && authHeader !== `Bearer ${globalAccessToken}`) {
-        prevRequest.sent = true;
-        if (prevRequest.headers) {
-          if (typeof prevRequest.headers.set === "function") {
-            prevRequest.headers.set(
-              "Authorization",
-              `Bearer ${globalAccessToken}`,
-            );
-          } else {
-            prevRequest.headers.Authorization = `Bearer ${globalAccessToken}`;
-          }
-        }
-        return httpClient(prevRequest);
-      }
-
-      prevRequest.sent = true;
-
-      try {
-        const newAccessToken = await refreshAccessToken();
-        if (newAccessToken) {
-          if (typeof prevRequest.headers.set === "function") {
-            prevRequest.headers.set(
-              "Authorization",
-              `Bearer ${newAccessToken}`,
-            );
-          } else {
-            prevRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          }
-          return httpClient(prevRequest);
-        } else {
-          throw new Error("No token returned");
-        }
-      } catch (refreshError) {
-        globalAccessToken = null;
-        if (onSessionExpiredCallback) onSessionExpiredCallback();
-        return Promise.reject(refreshError);
-      }
+    if (error?.response?.status !== 401 || prevRequest.sent) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // No intentamos refrescar si la propia ruta de auth fue la que falló.
+    if (isAuthRoute(prevRequest.url)) {
+      globalAccessToken = null;
+      return Promise.reject(error);
+    }
+
+    const authHeader = getAuthHeader(prevRequest.headers ?? {});
+
+    // Si ya hay un token global distinto al de esta petición, otra petición
+    // refrescó por nosotros: reintentamos directamente con el nuevo.
+    if (globalAccessToken && authHeader !== `Bearer ${globalAccessToken}`) {
+      prevRequest.sent = true;
+      if (prevRequest.headers) {
+        setAuthHeader(prevRequest.headers, globalAccessToken);
+      }
+      return httpClient(prevRequest);
+    }
+
+    prevRequest.sent = true;
+
+    try {
+      const newAccessToken = await refreshAccessToken();
+      if (!newAccessToken) throw new Error("No token returned");
+
+      if (prevRequest.headers) {
+        setAuthHeader(prevRequest.headers, newAccessToken);
+      }
+      return httpClient(prevRequest);
+    } catch (refreshError) {
+      globalAccessToken = null;
+      onSessionExpiredCallback?.();
+      return Promise.reject(refreshError);
+    }
   },
 );

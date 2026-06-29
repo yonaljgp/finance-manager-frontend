@@ -1,7 +1,18 @@
 import { PinInput } from "@mantine/core";
-import { useVerifyCode } from "../../../hooks/useVerifyCode";
+import {
+  useVerifyCode,
+  type ResendCodeEndpoint,
+  type VerifyCodeKind,
+} from "../../../hooks/useVerifyCode";
 
-function VerifyCode() {
+interface VerifyCodeProps {
+  title: string;
+  kind: VerifyCodeKind;
+  navigateTo: string;
+  fetchTo: ResendCodeEndpoint;
+}
+
+function VerifyCode({ title, kind, navigateTo, fetchTo }: VerifyCodeProps) {
   const {
     value,
     setValue,
@@ -13,15 +24,13 @@ function VerifyCode() {
     obfuscateEmail,
     handleValidate,
     handleResendCode,
-  } = useVerifyCode();
+  } = useVerifyCode({ kind, navigateTo, fetchTo });
 
   return (
     <div className="h-screen flex items-center justify-center bg-background">
       <div className="flex gap-8 flex-col items-center justify-evenly bg-card drop-shadow-lg rounded-2xl p-8 h-110 w-full max-w-sm md:max-w-md relative">
         <div>
-          <h2 className="mb-5 font-bold text-3xl text-center">
-            Recuperar Acceso
-          </h2>
+          <h2 className="mb-5 font-bold text-3xl text-center">{title}</h2>
           <p className="text-center text-muted-foreground text-sm">
             Ingresa el PIN de seguridad enviado a tu correo{" "}
             <span className="font-semibold text-primary">
@@ -54,6 +63,7 @@ function VerifyCode() {
 
           <div className="w-full">
             <button
+              type="button"
               onClick={handleResendCode}
               disabled={isTimerActive}
               className="button flex gap-1 mt-1 ml-3 font-semibold text-left text-sm link disabled:opacity-70 disabled:cursor-not-allowed"
@@ -65,6 +75,7 @@ function VerifyCode() {
           </div>
 
           <button
+            type="button"
             className="button bg-active flex items-center justify-center text-white font-bold rounded-md mt-8 h-10 p-6 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={value.length < 6 || isLoading}
             onClick={handleValidate}

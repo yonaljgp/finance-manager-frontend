@@ -52,7 +52,8 @@ function NewPassword() {
   const location = useLocation();
   const { resetPassword } = useAuth();
 
-  const { email, code } = (location.state as { email: string; code: string }) ?? {};
+  const { email, code } =
+    (location.state as { email: string; code: string }) ?? {};
 
   const {
     register,
@@ -71,13 +72,12 @@ function NewPassword() {
   const onSubmit = async (data: z.infer<typeof passwordSchema>) => {
     setLocalError(null);
     setIsLoading(true);
-    try {
-      await resetPassword(email, code, data.password);
+    const result = await resetPassword(email, code, data.password);
+    setIsLoading(false);
+    if (result.ok) {
       navigate("/auth/login");
-    } catch (err: unknown) {
-      setLocalError((err as Error).message || "Error al cambiar la contraseña");
-    } finally {
-      setIsLoading(false);
+    } else if (result.errorMessage) {
+      setLocalError(result.errorMessage);
     }
   };
 

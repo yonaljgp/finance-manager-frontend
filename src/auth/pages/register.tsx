@@ -51,21 +51,24 @@ function Register() {
     defaultValues: { password: "" },
   });
   const [viewPassword, setViewPassword] = useState(false);
-  const { register: registerUser, isLoading, error: serverError } = useAuth();
+  const {
+    register: registerUser,
+    isLoading,
+    error: serverError,
+    validateEmail,
+  } = useAuth();
   const navigate = useNavigate();
 
   const password = useWatch({ control, name: "password", defaultValue: "" });
   const passwordStrength = getPasswordStrength(password);
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    try {
-      await registerUser(data);
-      // Si el registro es exitoso y loguea automáticamente:
-      navigate("/auth/login");
-    } catch (err) {
-      // El error ya está en 'serverError' del hook para mostrarlo en la UI
-      console.error("Fallo el registro", err);
-    }
+    const result = await registerUser(data);
+    if (!result.ok) return;
+
+    await validateEmail(data.email);
+
+    navigate("/auth/validate-email", { state: { email: data.email } });
   };
 
   return (

@@ -31,13 +31,11 @@ function InputEmail() {
   // 3. Manejar el envío del formulario
   const onSubmit = async (data: FormData) => {
     setLocalError(null);
-    try {
-      await forgotPassword(data.email);
+    const result = await forgotPassword(data.email);
+    if (result.ok) {
       navigate("/auth/verify-code", { state: { email: data.email } });
-    } catch (err: unknown) {
-      setLocalError(
-        (err as Error).message || "Ocurrió un error al enviar el correo",
-      );
+    } else if (result.errorMessage) {
+      setLocalError(result.errorMessage);
     }
   };
 

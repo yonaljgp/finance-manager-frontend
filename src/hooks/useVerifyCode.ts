@@ -2,43 +2,86 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
 
-const RESEND_COOLDOWN = 60;
-const TIMER_KEY = "resend_expires_at";
+// ---------------------------------------------------------------------------
+// Tipos
+// ---------------------------------------------------------------------------
+
+/**
+ * Endpoints válidos para reenviar el código. Mantener este union type
+ * cerrado evita que un consumidor pase accidentalmente una ruta incorrecta.
+ */
+export type ResendCodeEndpoint =
+  | "/auth/password/forgot"
+  | "/auth/password/forgot/resend"
+  | "/auth/email/send-code";
+
+/**
+ * Tipo de verificación. Determina qué endpoint se llama al validar
+ * el código PIN introducido por el usuario.
+ */
+export type VerifyCodeKind = "email" | "password";
+
+interface VerifyCodeParams {
+  /** Tipo de verificación: email (confirmar cuenta) o password (reset). */
+  kind: VerifyCodeKind;
+  /** Ruta a la que se navega cuando el código es válido. */
+  navigateTo: string;
+  /** Endpoint al que se llama al pulsar "Reenviar código". */
+  fetchTo: ResendCodeEndpoint;
+}
+
+// ---------------------------------------------------------------------------
+// Constantes del temporizador
+// ---------------------------------------------------------------------------
+
+const RESEND_COOLDOWN_SECONDS = 60;
+const TIMER_STORAGE_KEY = "resend_expires_at";
 
 /** Lee sessionStorage y devuelve los segundos restantes (0 si expiró). */
 function getRemainingSeconds(): number {
-  const stored = sessionStorage.getItem(TIMER_KEY);
+  const stored = sessionStorage.getItem(TIMER_STORAGE_KEY);
   if (!stored) return 0;
   const remaining = Math.round((Number(stored) - Date.now()) / 1000);
   if (remaining <= 0) {
-    sessionStorage.removeItem(TIMER_KEY);
+    sessionStorage.removeItem(TIMER_STORAGE_KEY);
     return 0;
   }
   return remaining;
 }
 
-export function useVerifyCode() {
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+
+/**
+ * Lógica reutilizable para pantallas de verificación de código PIN:
+ *  - Recuperación de contraseña (`kind: "password"`)
+ *  - Validación de cuenta recién registrada (`kind: "email"`)
+ *
+ * Devuelve el estado y los handlers que `VerifyCode` necesita.
+ */
+export function useVerifyCode({ kind, navigateTo, fetchTo }: VerifyCodeParams) {
   const [value, setValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const [segundos, setSegundos] = useState<number>(() => {
-    const rem = getRemainingSeconds();
-    return rem > 0 ? rem : RESEND_COOLDOWN;
-  });
+  const initialRemaining = getRemainingSeconds();
+  const [segundos, setSegundos] = useState<number>(
+    initialRemaining > 0 ? initialRemaining : RESEND_COOLDOWN_SECONDS,
+  );
   const [isTimerActive, setIsTimerActive] = useState<boolean>(
-    () => getRemainingSeconds() > 0,
+    initialRemaining > 0,
   );
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { verifyCode, resendCode } = useAuth();
+  const { verifyCode, confirmEmail, resendCode } = useAuth();
 
-  const email = (location.state as { email: string })?.email ?? "";
+  const email = (location.state as { email?: string })?.email ?? "";
 
-  // Ofusca el correo para mostrarlo en pantalla
-  const obfuscateEmail = (emailStr: string) => {
+  /** Ofusca el correo para mostrarlo en pantalla (ej. yo******@gmail.com). */
+  const obfuscateEmail = (emailStr: string): string => {
     if (!emailStr) return "";
     const parts = emailStr.split("@");
     if (parts.length !== 2) return emailStr;
@@ -47,19 +90,16 @@ export function useVerifyCode() {
     return `${name.slice(0, 2)}******@${domain}`;
   };
 
-  /**
-   * Solo inicia el setInterval. No llama setState directamente
-   * (el estado ya fue inicializado antes de que corra el efecto).
-   */
+  // Inicia el setInterval (sin tocar estado: ya fue inicializado en mount).
   const startInterval = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = setInterval(() => {
       setSegundos((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current!);
+          if (timerRef.current) clearInterval(timerRef.current);
           setIsTimerActive(false);
-          sessionStorage.removeItem(TIMER_KEY);
+          sessionStorage.removeItem(TIMER_STORAGE_KEY);
           return 0;
         }
         return prev - 1;
@@ -67,21 +107,15 @@ export function useVerifyCode() {
     }, 1000);
   }, []);
 
-  /**
-   * Arrancar el timer con cuenta regresiva completa (acción del usuario).
-   * Aquí sí es válido llamar setState porque es dentro de un handler,
-   * no dentro de un efecto.
-   */
+  // Reinicia la cuenta atrás (acción del usuario: aquí sí hay setState).
   const startTimer = useCallback(() => {
-    const expiresAt = Date.now() + RESEND_COOLDOWN * 1000;
-    sessionStorage.setItem(TIMER_KEY, String(expiresAt));
-    setSegundos(RESEND_COOLDOWN);
+    const expiresAt = Date.now() + RESEND_COOLDOWN_SECONDS * 1000;
+    sessionStorage.setItem(TIMER_STORAGE_KEY, String(expiresAt));
+    setSegundos(RESEND_COOLDOWN_SECONDS);
     setIsTimerActive(true);
     startInterval();
   }, [startInterval]);
 
-  // Al montar: solo arranca el intervalo si el estado ya fue inicializado
-  // con un timer activo (sin setState, evita cascading renders).
   useEffect(() => {
     if (getRemainingSeconds() > 0) {
       startInterval();
@@ -91,28 +125,33 @@ export function useVerifyCode() {
     };
   }, [startInterval]);
 
-  const handleValidate = async () => {
+  /**
+   * Llama al endpoint correcto según el `kind`:
+   *  - "email"    → /auth/email/confirm   (vía confirmEmail)
+   *  - "password" → /auth/password/verify-code (vía verifyCode)
+   */
+  const validateCode = (): Promise<{ ok: boolean; errorMessage?: string }> =>
+    kind === "email" ? confirmEmail(email, value) : verifyCode(email, value);
+
+  const handleValidate = async (): Promise<void> => {
     setLocalError(null);
     setIsLoading(true);
-    try {
-      await verifyCode(email, value);
-      navigate("/auth/reset-password", { state: { email, code: value } });
-    } catch (err) {
-      setLocalError((err as Error).message || "Error al validar el código");
-    } finally {
-      setIsLoading(false);
+    const result = await validateCode();
+    setIsLoading(false);
+    if (result.ok) {
+      navigate(navigateTo, { state: { email, code: value } });
+    } else if (result.errorMessage) {
+      setLocalError(result.errorMessage);
     }
   };
 
-  const handleResendCode = async () => {
-    try {
-      await resendCode(email);
-      setLocalError(null);
+  const handleResendCode = async (): Promise<void> => {
+    setLocalError(null);
+    const result = await resendCode(fetchTo, email);
+    if (result.ok) {
       startTimer();
-    } catch (error: unknown) {
-      setLocalError(
-        (error as Error).message || "Error al reenviar, intente de nuevo",
-      );
+    } else if (result.errorMessage) {
+      setLocalError(result.errorMessage);
     }
   };
 

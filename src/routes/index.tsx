@@ -12,7 +12,6 @@ import NotFound from "../pages/notFound";
 import InputEmail from "../auth/pages/forgotPassword/inputEmail";
 import VerifyCode from "../auth/pages/forgotPassword/verifyCode";
 import NewPassword from "../auth/pages/forgotPassword/newPassword";
-import VerifyEmail from "../auth/pages/verifyEmail";
 import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import FullPageLoader from "../components/layout/FullPageLoader";
@@ -67,7 +66,12 @@ function RoutesPages() {
                       keys={["email"]}
                       redirectTo="/auth/forgot-password"
                     >
-                      <VerifyCode />
+                      <VerifyCode
+                        title="Recuperar Acceso"
+                        kind="password"
+                        navigateTo="/auth/reset-password"
+                        fetchTo="/auth/password/forgot"
+                      />
                     </RequireState>
                   }
                 />
@@ -82,7 +86,19 @@ function RoutesPages() {
                     </RequireState>
                   }
                 />
-                <Route path="/auth/verify-email" element={<VerifyEmail />} />
+                <Route
+                  path="/auth/validate-email"
+                  element={
+                    <RequireState keys={["email"]} redirectTo="/auth/register">
+                      <VerifyCode
+                        title="Valida tu Cuenta"
+                        kind="email"
+                        navigateTo="/auth/login"
+                        fetchTo="/auth/email/send-code"
+                      />
+                    </RequireState>
+                  }
+                />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
