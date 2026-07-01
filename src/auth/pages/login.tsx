@@ -25,17 +25,16 @@ function LoginPage() {
   const [viewPassword, setViewPassword] = useState(false);
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const { email, password } = data;
-    try {
-      await login(email, password);
-      navigate("/"); // Redirigir tras éxito
-    } catch (err) {
-      // El error ya se captura en el estado 'authError' del hook
+    const result = await login(email, password);
+
+    if (result.ok) {
+      navigate("/");
     }
   };
 
   return (
     <div className="h-screen flex items-center justify-center bg-background">
-      <div className="flex h-60vhp md:h-130 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-6 pt-5 w-full max-w-85 md:max-w-sm">
+      <div className="flex h-60vhp md:h-140 flex-col items-center justify-center bg-card drop-shadow-lg rounded-2xl p-10 pt-8 w-full max-w-85 md:max-w-sm">
         <h1 className="text-3xl font-bold mb-10 mt-6">Inicia Sesión</h1>
         <form
           noValidate
@@ -84,7 +83,7 @@ function LoginPage() {
               </button>
             </div>
             {errors.password && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-red-500 font-semibold">
                 {errors.password.message}
               </span>
             )}
