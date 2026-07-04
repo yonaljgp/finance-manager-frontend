@@ -1,12 +1,25 @@
 import { useMemo } from "react";
-import type { FormEvent } from "react";
 import { Calendar, DollarSign, FileText, Tag } from "lucide-react";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";
 
 type TransactionType = "ingreso" | "gasto";
 
+export interface TransactionFormValues {
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+  note?: string;
+}
+
 interface TransactionFormProps {
   transactionType: TransactionType;
-  onSubmit: (event: FormEvent) => void;
+  register: UseFormRegister<TransactionFormValues>;
+  errors: FieldErrors<TransactionFormValues>;
+  handleSubmit: (
+    callback: (data: TransactionFormValues) => void,
+  ) => (event?: React.FormEvent) => Promise<void>;
+  onSubmit: (data: TransactionFormValues) => void;
 }
 
 const categories: Record<TransactionType, string[]> = {
@@ -24,6 +37,9 @@ const categories: Record<TransactionType, string[]> = {
 
 export default function TransactionForm({
   transactionType,
+  register,
+  errors,
+  handleSubmit,
   onSubmit,
 }: TransactionFormProps) {
   const categoryOptions = useMemo(
@@ -32,7 +48,7 @@ export default function TransactionForm({
   );
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <label className="text-sm text-muted-foreground mb-2 block">
           Monto
@@ -43,10 +59,13 @@ export default function TransactionForm({
             type="number"
             step="0.01"
             placeholder="0.00"
+            {...register("amount", { valueAsNumber: true })}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
-            required
           />
         </div>
+        {errors.amount && (
+          <p className="mt-2 text-sm text-red-500">{errors.amount.message}</p>
+        )}
       </div>
 
       <div>
@@ -58,10 +77,15 @@ export default function TransactionForm({
           <input
             type="text"
             placeholder="Ej: Compra en supermercado"
+            {...register("description")}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
-            required
           />
         </div>
+        {errors.description && (
+          <p className="mt-2 text-sm text-red-500">
+            {errors.description.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -71,8 +95,8 @@ export default function TransactionForm({
         <div className="relative">
           <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <select
+            {...register("category")}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none transition-colors text-foreground"
-            required
           >
             <option value="" className="bg-card">
               Selecciona una categoría
@@ -84,6 +108,9 @@ export default function TransactionForm({
             ))}
           </select>
         </div>
+        {errors.category && (
+          <p className="mt-2 text-sm text-red-500">{errors.category.message}</p>
+        )}
       </div>
 
       <div>
@@ -94,11 +121,13 @@ export default function TransactionForm({
           <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="date"
-            defaultValue={new Date().toISOString().split("T")[0]}
+            {...register("date")}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
-            required
           />
         </div>
+        {errors.date && (
+          <p className="mt-2 text-sm text-red-500">{errors.date.message}</p>
+        )}
       </div>
 
       <div>
@@ -108,6 +137,7 @@ export default function TransactionForm({
         <textarea
           placeholder="Agrega notas adicionales..."
           rows={4}
+          {...register("note")}
           className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-colors text-foreground placeholder:text-muted-foreground"
         />
       </div>
