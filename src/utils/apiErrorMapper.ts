@@ -7,12 +7,11 @@ import {
   STATUS_MESSAGES,
 } from "./errorMessages";
 
-//export default ApiErrorCode;
-export { ApiErrorCode } from "./errorMessages";
-
 // ============================================================================
 // Tipos públicos
 // ============================================================================
+
+export type SetError = (message: string | null) => void;
 
 export interface ParsedApiError {
   code: ApiErrorCodeType;
@@ -181,3 +180,5 @@ export function parseApiError(
 export function toAppError(error: unknown, fallback?: string): AppError {
   return new AppError(parseApiError(error, fallback), error);
 }
+
+export { ApiErrorCode };

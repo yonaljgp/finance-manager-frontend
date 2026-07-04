@@ -9,7 +9,11 @@ import {
   setGlobalAccessToken,
   setOnSessionExpiredCallback,
 } from "../services/authInterceptor";
-import { ApiErrorCode, toAppError } from "../utils/apiErrorMapper";
+import {
+  ApiErrorCode,
+  toAppError,
+  type SetError,
+} from "../utils/apiErrorMapper";
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -20,13 +24,16 @@ interface RegisterData {
   password: string;
 }
 
+interface AuthUser {
+  name: string;
+  email: string;
+}
+
 interface LoginResponse {
   access_token?: string;
   accessToken?: string;
-  user?: string;
+  user?: AuthUser;
 }
-
-type SetError = (message: string | null) => void;
 
 /** Resultado de una acción: indica éxito y, si falló, el mensaje para mostrar. */
 interface ActionResult {
@@ -37,6 +44,43 @@ interface ActionResult {
 // ---------------------------------------------------------------------------
 // Helpers internos
 // ---------------------------------------------------------------------------
+
+const USER_STORAGE_KEY = "auth_user";
+
+/**
+ * Lee el usuario persistido en localStorage.
+ * Devuelve `null` si no existe o si los datos están corruptos.
+ */
+const readStoredUser = (): AuthUser | null => {
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      typeof (parsed as AuthUser).name === "string" &&
+      typeof (parsed as AuthUser).email === "string"
+    ) {
+      return parsed as AuthUser;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredUser = (user: AuthUser | null): void => {
+  try {
+    if (user) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_STORAGE_KEY);
+    }
+  } catch {
+    // localStorage puede no estar disponible (modo privado, etc.); lo ignoramos.
+  }
+};
 
 /**
  * Ejecuta una tarea de autenticación con manejo uniforme de:
@@ -72,6 +116,7 @@ export const useAuth = () => {
   const [accessToken, setAccessToken] = useState<string | null>(
     getGlobalAccessToken(),
   );
+  const [user, setUser] = useState<AuthUser | null>(() => readStoredUser());
   const [isAuth, setIsAuth] = useState<boolean>(!!getGlobalAccessToken());
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState<boolean>(true);
@@ -85,14 +130,25 @@ export const useAuth = () => {
     setIsAuth(!!token);
   }, []);
 
+  /**
+   * Único punto de escritura del estado `user`: garantiza que cualquier
+   * cambio (login, logout, sesión expirada) se persista en localStorage
+   * para que sobreviva a recargas de la página.
+   */
+  const updateUser = useCallback((next: AuthUser | null) => {
+    setUser(next);
+    writeStoredUser(next);
+  }, []);
+
   // Reaccionar al evento "sesión expirada" emitido por el interceptor HTTP.
   useEffect(() => {
     setOnSessionExpiredCallback(() => {
       updateToken(null);
+      updateUser(null);
       navigate("/auth/login");
     });
     return () => setOnSessionExpiredCallback(null);
-  }, [navigate, updateToken]);
+  }, [navigate, updateToken, updateUser]);
 
   // Al montar, intenta renovar el token si existe la cookie de refresh.
   useEffect(() => {
@@ -147,6 +203,9 @@ export const useAuth = () => {
           setError(message);
           return { ok: false, errorMessage: message };
         }
+        if (data?.user) {
+          updateUser(data.user);
+        }
         updateToken(token);
         return { ok: true };
       } catch (err) {
@@ -165,7 +224,7 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [navigate, updateToken, validateEmail],
+    [navigate, updateToken, updateUser, validateEmail],
   );
 
   const register = useCallback(
@@ -183,9 +242,10 @@ export const useAuth = () => {
       console.error("Error al cerrar sesión:", err);
     } finally {
       updateToken(null);
+      updateUser(null);
       navigate("/auth/login");
     }
-  }, [navigate, updateToken]);
+  }, [navigate, updateToken, updateUser]);
 
   const forgotPassword = useCallback(
     async (email: string): Promise<ActionResult> =>
@@ -252,6 +312,7 @@ export const useAuth = () => {
 
   return {
     accessToken,
+    user,
     isAuth,
     isLoading,
     isBootstrapping,

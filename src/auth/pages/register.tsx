@@ -48,7 +48,6 @@ function Register() {
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { password: "" },
   });
   const [viewPassword, setViewPassword] = useState(false);
   const {
