@@ -12,14 +12,15 @@ export default function TransactionTypeToggle({
   setTransactionType,
 }: TransactionTypeToggleProps) {
   return (
-    <div className="mb-8">
-      <label className="text-sm text-muted-foreground mb-3 block">
+    <fieldset className="mb-8 border-0 p-0 m-0">
+      <legend className="text-sm text-muted-foreground mb-3 block">
         Tipo de Transacción
-      </label>
+      </legend>
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
           onClick={() => setTransactionType("ingreso")}
+          aria-pressed={transactionType === "ingreso"}
           className={`p-6 rounded-lg border-2 transition-all ${
             transactionType === "ingreso"
               ? "border-green-500 bg-green-500/10"
@@ -37,6 +38,7 @@ export default function TransactionTypeToggle({
         <button
           type="button"
           onClick={() => setTransactionType("gasto")}
+          aria-pressed={transactionType === "gasto"}
           className={`p-6 rounded-lg border-2 transition-all ${
             transactionType === "gasto"
               ? "border-red-500 bg-red-500/10"
@@ -51,6 +53,6 @@ export default function TransactionTypeToggle({
           </div>
         </button>
       </div>
-    </div>
+    </fieldset>
   );
 }

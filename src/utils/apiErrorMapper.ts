@@ -23,7 +23,7 @@ export interface ParsedApiError {
 // Clase de error personalizada
 // ============================================================================
 
-export class AppError extends Error {
+class AppError extends Error {
   readonly code: ApiErrorCodeType;
   readonly status?: number;
 
@@ -137,10 +137,7 @@ function resolveMessage(
  * Convierte cualquier error (típicamente de Axios) en un objeto con
  * código tipado y mensaje legible para el usuario.
  */
-export function parseApiError(
-  error: unknown,
-  fallback?: string,
-): ParsedApiError {
+function parseApiError(error: unknown, fallback?: string): ParsedApiError {
   if (!axios.isAxiosError(error)) {
     return {
       code: ApiErrorCode.UNKNOWN,

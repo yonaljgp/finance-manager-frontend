@@ -7,7 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Debe ser un email válido." }),
+  email: z.email({ message: "Debe ser un email válido." }),
   password: z.string().min(6, { message: "Almenos 6 caracteres" }),
 });
 

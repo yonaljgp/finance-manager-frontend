@@ -10,7 +10,10 @@ export default function LoansHeader() {
             Gestiona tus préstamos y deudas
           </p>
         </div>
-        <button className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
+        <button
+          type="button"
+          className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+        >
           <Plus className="w-5 h-5" />
           Nuevo Préstamo
         </button>

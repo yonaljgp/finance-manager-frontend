@@ -7,9 +7,9 @@ import { useAuth } from "../../../hooks/useAuth";
 
 // 1. Definir el esquema de validación con Zod
 const schema = z.object({
-  email: z
-    .string()
-    .email({ message: "Introduce un formato de correo electrónico válido" }),
+  email: z.email({
+    message: "Introduce un formato de correo electrónico válido",
+  }),
 });
 
 // Inferir el tipo de TypeScript a partir del esquema

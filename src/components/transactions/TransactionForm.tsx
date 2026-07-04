@@ -50,12 +50,16 @@ export default function TransactionForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">
+        <label
+          htmlFor="transaction-amount"
+          className="text-sm text-muted-foreground mb-2 block"
+        >
           Monto
         </label>
         <div className="relative">
           <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
+            id="transaction-amount"
             type="number"
             step="0.01"
             placeholder="0.00"
@@ -69,12 +73,16 @@ export default function TransactionForm({
       </div>
 
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">
+        <label
+          htmlFor="transaction-description"
+          className="text-sm text-muted-foreground mb-2 block"
+        >
           Descripción
         </label>
         <div className="relative">
           <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
+            id="transaction-description"
             type="text"
             placeholder="Ej: Compra en supermercado"
             {...register("description")}
@@ -89,12 +97,16 @@ export default function TransactionForm({
       </div>
 
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">
+        <label
+          htmlFor="transaction-category"
+          className="text-sm text-muted-foreground mb-2 block"
+        >
           Categoría
         </label>
         <div className="relative">
           <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <select
+            id="transaction-category"
             {...register("category")}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none transition-colors text-foreground"
           >
@@ -114,12 +126,16 @@ export default function TransactionForm({
       </div>
 
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">
+        <label
+          htmlFor="transaction-date"
+          className="text-sm text-muted-foreground mb-2 block"
+        >
           Fecha
         </label>
         <div className="relative">
           <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
+            id="transaction-date"
             type="date"
             {...register("date")}
             className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
@@ -131,10 +147,14 @@ export default function TransactionForm({
       </div>
 
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">
+        <label
+          htmlFor="transaction-notes"
+          className="text-sm text-muted-foreground mb-2 block"
+        >
           Notas (opcional)
         </label>
         <textarea
+          id="transaction-notes"
           placeholder="Agrega notas adicionales..."
           rows={4}
           {...register("note")}

@@ -113,11 +113,11 @@ async function runAuthTask<T>(
 // ---------------------------------------------------------------------------
 
 export const useAuth = () => {
-  const [accessToken, setAccessToken] = useState<string | null>(
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
     getGlobalAccessToken(),
   );
   const [user, setUser] = useState<AuthUser | null>(() => readStoredUser());
-  const [isAuth, setIsAuth] = useState<boolean>(!!getGlobalAccessToken());
+  const [isAuth, setIsAuth] = useState<boolean>(() => !!getGlobalAccessToken());
   const [isLoading, setIsLoading] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -328,5 +328,3 @@ export const useAuth = () => {
     resendCode,
   };
 };
-
-export { api };

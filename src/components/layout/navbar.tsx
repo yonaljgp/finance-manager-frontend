@@ -21,6 +21,13 @@ interface NavItem {
   label: string;
 }
 
+const NAV_ITEMS: NavItem[] = [
+  { to: "/", icon: Home, label: "Inicio" },
+  { to: "/crear-transaccion", icon: PlusCircle, label: "Transacción" },
+  { to: "/prestamos", icon: CreditCard, label: "Préstamos" },
+  { to: "/historial", icon: History, label: "Historial" },
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useClickOutside(() => setIsOpen(false));
@@ -38,19 +45,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems: NavItem[] = [
-    { to: "/", icon: Home, label: "Inicio" },
-    { to: "/crear-transaccion", icon: PlusCircle, label: "Transacción" },
-    { to: "/prestamos", icon: CreditCard, label: "Préstamos" },
-    { to: "/historial", icon: History, label: "Historial" },
-  ];
-
   return (
     <div className="flex flex-col bg-background transition-colors duration-300 relative">
       <header className="w-full h-20 p-4 border-b bg-sidebar border-border flex shadow-sidebar items-center justify-between bg-card">
         <h2 className="text-xl font-semibold">LOGO</h2>
         <nav className="hidden lg:flex   items-center gap-4">
-          {navItems.map((item) => (
+          {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -71,8 +71,10 @@ export default function Navbar() {
         {/* User Profile and Logout Dropdown */}
         <div className="hidden lg:block relative" ref={userMenuRef}>
           <button
+            type="button"
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className="button flex items-center gap-2 px-4 py-2 rounded-lg text-foreground hover:bg-accent"
+            aria-label="Abrir menú de usuario"
           >
             <UserCircle className="w-5 h-5" />
             <span className="wrap-break-word">{displayName}</span>
@@ -81,6 +83,7 @@ export default function Navbar() {
             <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-30">
               <div className="py-1">
                 <button
+                  type="button"
                   onClick={() => {
                     logout();
                     setIsUserMenuOpen(false);
@@ -95,8 +98,10 @@ export default function Navbar() {
         </div>
         <div ref={menuRef} className="relative lg:hidden">
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
             className="relative z-20 bg-transparent border-none text-foreground hover:bg-transparent focus:bg-transparent"
+            aria-label="Abrir menú de navegación"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -114,15 +119,17 @@ export default function Navbar() {
                 </h2>
               </div>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="p-2 text-foreground hover:bg-accent rounded-full"
+                aria-label="Cerrar menú"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <nav className="flex-1 p-4">
               <ul className="space-y-2">
-                {navItems.map((item) => (
+                {NAV_ITEMS.map((item) => (
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
@@ -152,6 +159,7 @@ export default function Navbar() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => logout()}
               className="button flex items-center mb-4 ml-2 gap-3 px-4 py-3 rounded-lg transition-colors"
             >

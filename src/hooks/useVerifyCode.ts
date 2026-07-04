@@ -53,6 +53,15 @@ function getRemainingSeconds(): number {
 // Hook
 // ---------------------------------------------------------------------------
 
+function obfuscateEmail(emailStr: string): string {
+  if (!emailStr) return "";
+  const parts = emailStr.split("@");
+  if (parts.length !== 2) return emailStr;
+  const [name, domain] = parts;
+  if (name.length <= 2) return `${name[0]}*@${domain}`;
+  return `${name.slice(0, 2)}******@${domain}`;
+}
+
 /**
  * Lógica reutilizable para pantallas de verificación de código PIN:
  *  - Recuperación de contraseña (`kind: "password"`)
@@ -80,24 +89,20 @@ export function useVerifyCode({ kind, navigateTo, fetchTo }: VerifyCodeParams) {
 
   const email = (location.state as { email?: string })?.email ?? "";
 
-  /** Ofusca el correo para mostrarlo en pantalla (ej. yo******@gmail.com). */
-  const obfuscateEmail = (emailStr: string): string => {
-    if (!emailStr) return "";
-    const parts = emailStr.split("@");
-    if (parts.length !== 2) return emailStr;
-    const [name, domain] = parts;
-    if (name.length <= 2) return `${name[0]}*@${domain}`;
-    return `${name.slice(0, 2)}******@${domain}`;
-  };
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
-  // Inicia el setInterval (sin tocar estado: ya fue inicializado en mount).
   const startInterval = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    clearTimer();
 
-    timerRef.current = setInterval(() => {
+    timerRef.current = window.setInterval(() => {
       setSegundos((prev) => {
         if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
+          clearTimer();
           setIsTimerActive(false);
           sessionStorage.removeItem(TIMER_STORAGE_KEY);
           return 0;
@@ -105,7 +110,7 @@ export function useVerifyCode({ kind, navigateTo, fetchTo }: VerifyCodeParams) {
         return prev - 1;
       });
     }, 1000);
-  }, []);
+  }, [clearTimer]);
 
   // Reinicia la cuenta atrás (acción del usuario: aquí sí hay setState).
   const startTimer = useCallback(() => {
@@ -117,13 +122,17 @@ export function useVerifyCode({ kind, navigateTo, fetchTo }: VerifyCodeParams) {
   }, [startInterval]);
 
   useEffect(() => {
-    if (getRemainingSeconds() > 0) {
+    const remaining = getRemainingSeconds();
+    if (remaining > 0) {
+      setSegundos(remaining);
+      setIsTimerActive(true);
       startInterval();
     }
+
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      clearTimer();
     };
-  }, [startInterval]);
+  }, [clearTimer, startInterval]);
 
   /**
    * Llama al endpoint correcto según el `kind`:

@@ -18,8 +18,12 @@ export default function Filters({
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
+            <label htmlFor="history-search" className="sr-only">
+              Buscar transacciones
+            </label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
+              id="history-search"
               type="text"
               placeholder="Buscar transacciones..."
               value={searchTerm}
@@ -31,6 +35,7 @@ export default function Filters({
 
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => setFilterType("all")}
             className={`px-6 py-3 rounded-lg font-medium transition-colors ${
               filterType === "all"
@@ -41,6 +46,7 @@ export default function Filters({
             Todas
           </button>
           <button
+            type="button"
             onClick={() => setFilterType("ingreso")}
             className={`px-6 py-3 rounded-lg font-medium transition-colors ${
               filterType === "ingreso"
@@ -51,6 +57,7 @@ export default function Filters({
             Ingresos
           </button>
           <button
+            type="button"
             onClick={() => setFilterType("gasto")}
             className={`px-6 py-3 rounded-lg font-medium transition-colors ${
               filterType === "gasto"
@@ -62,7 +69,10 @@ export default function Filters({
           </button>
         </div>
 
-        <button className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center gap-2">
+        <button
+          type="button"
+          className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center gap-2"
+        >
           <Download className="w-5 h-5" />
           Exportar
         </button>

@@ -12,7 +12,7 @@ const registerSchema = z.object({
     .string()
     .min(2, { message: "debe tener al menos 2 caracteres." })
     .max(40, { message: "debe tener hasta 40 caracteres." }),
-  email: z.string().email({ message: "Debe ser un email válido." }),
+  email: z.email({ message: "Debe ser un email válido." }),
   password: z
     .string()
     .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
