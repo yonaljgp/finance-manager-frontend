@@ -114,7 +114,7 @@ export default function Navbar() {
           >
             <div className="flex items-center h-20 justify-between gap-3 border-b border-border px-4 py-3">
               <div className="min-w-0 ">
-                <h2 className="text-md font-semibold break-words truncate">
+                <h2 className="text-md font-semibold wrap-break-words truncate">
                   {displayName}
                 </h2>
               </div>

@@ -1,11 +1,28 @@
 import { ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
 import type HistoryType from "../../types/history";
+import { Button, EmptyState } from "@mantine/core";
+import { Search } from "lucide-react";
 
 type Props = {
   transactions: HistoryType[];
+  setResetFilters: (reset: boolean) => void;
 };
 
-export default function TransactionsTable({ transactions }: Props) {
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const formato = date.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  return formato;
+};
+
+export default function TransactionsTable({
+  transactions,
+  setResetFilters,
+}: Props) {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -26,7 +43,7 @@ export default function TransactionsTable({ transactions }: Props) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {transactions.map((transaction) => (
               <tr
                 key={transaction.id}
@@ -35,7 +52,7 @@ export default function TransactionsTable({ transactions }: Props) {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4" />
-                    {transaction.date}
+                    {formatDate(transaction.date)}
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -63,7 +80,7 @@ export default function TransactionsTable({ transactions }: Props) {
                   <span
                     className={`font-semibold ${transaction.type === "ingreso" ? "text-green-500" : "text-red-500"}`}
                   >
-                    {transaction.amount > 0 ? "+" : ""}
+                    {transaction.type === "gasto" ? "-" : "+"}
                     {transaction.amount.toFixed(2)} USD
                   </span>
                 </td>
@@ -74,11 +91,18 @@ export default function TransactionsTable({ transactions }: Props) {
       </div>
 
       {transactions.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            No se encontraron transacciones
-          </p>
-        </div>
+        <EmptyState
+          icon={<Search className="w-12 h-12" />}
+          title="No se encontraron transacciones"
+          description="Intenta ajustar tus filtros o agregar nuevas transacciones."
+          className="p-10"
+        >
+          <EmptyState.Actions>
+            <Button variant="default" onClick={() => setResetFilters(true)}>
+              Reset filters
+            </Button>
+          </EmptyState.Actions>
+        </EmptyState>
       )}
     </div>
   );

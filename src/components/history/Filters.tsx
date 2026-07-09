@@ -1,10 +1,75 @@
-import { Search, Download } from "lucide-react";
+import { Search, X } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { Select } from "@mantine/core";
+import type { DateFilter, FilterType } from "../../types/history";
 
 type Props = {
   searchTerm: string;
   setSearchTerm: (v: string) => void;
-  filterType: "all" | "ingreso" | "gasto";
-  setFilterType: (v: "all" | "ingreso" | "gasto") => void;
+  filterType: FilterType;
+  setFilterType: (v: FilterType) => void;
+  date: DateFilter;
+  setDate: (v: DateFilter) => void;
+  resetFilters: boolean;
+  setResetFilters: (reset: boolean) => void;
+};
+
+const MONTHS = [
+  { value: "1", label: "Enero" },
+  { value: "2", label: "Febrero" },
+  { value: "3", label: "Marzo" },
+  { value: "4", label: "Abril" },
+  { value: "5", label: "Mayo" },
+  { value: "6", label: "Junio" },
+  { value: "7", label: "Julio" },
+  { value: "8", label: "Agosto" },
+  { value: "9", label: "Septiembre" },
+  { value: "10", label: "Octubre" },
+  { value: "11", label: "Noviembre" },
+  { value: "12", label: "Diciembre" },
+];
+
+/** Días válidos para un mes/año concretos (maneja bisiestos). */
+function getDaysInMonth(year: number | null, month: number | null): number {
+  if (!year || !month) return 31;
+  return new Date(year, month, 0).getDate();
+}
+
+function buildYearOptions(): { value: string; label: string }[] {
+  const current = new Date().getFullYear();
+  const years: { value: string; label: string }[] = [];
+  for (let y = current; y >= current - 10; y--) {
+    years.push({ value: String(y), label: String(y) });
+  }
+  return years;
+}
+
+const selectStyles = {
+  input: {
+    backgroundColor: "var(--input-background)",
+    borderColor: "var(--border)",
+    color: "var(--foreground)",
+    padding: "0.5rem 0.75rem",
+    paddingRight: "2.5rem",
+    borderRadius: "0.5rem",
+    fieldSizing: "content" as const,
+    minWidth: "4rem",
+    width: "auto",
+  },
+  dropdown: {
+    backgroundColor: "var(--card)",
+    borderColor: "var(--border)",
+    color: "var(--foreground)",
+  },
+  option: { color: "var(--foreground)" },
+  clear: {
+    backgroundColor: "var(--input-background)",
+    color: "var(--muted-foreground)",
+    borderRadius: "0.25rem",
+    width: "1.25rem",
+    height: "1.25rem",
+    insetInlineEnd: "0.5rem",
+  },
 };
 
 export default function Filters({
@@ -12,32 +77,118 @@ export default function Filters({
   setSearchTerm,
   filterType,
   setFilterType,
+  date,
+  setDate,
+  resetFilters,
+  setResetFilters,
 }: Props) {
+  const yearOptions = useMemo(buildYearOptions, []);
+
+  useEffect(() => {
+    if (resetFilters) {
+      setSearchTerm("");
+      setFilterType("all");
+      setDate({ day: null, month: null, year: null });
+      setResetFilters(false);
+    }
+  }, [resetFilters, setSearchTerm, setFilterType, setDate, setResetFilters]);
+
+  const daysInMonth = getDaysInMonth(date.year, date.month);
+  const dayOptions = useMemo(
+    () =>
+      Array.from({ length: daysInMonth }, (_, i) => ({
+        value: String(i + 1),
+        label: String(i + 1),
+      })),
+    [daysInMonth],
+  );
+
+  // Si el día seleccionado ya no es válido (p.ej. 31 feb), lo limpiamos.
+  useEffect(() => {
+    if (date.day != null && date.day > daysInMonth) {
+      setDate({ ...date, day: null });
+    }
+  }, [daysInMonth, date, setDate]);
+
+  const hasAnyDate =
+    date.day != null || date.month != null || date.year != null;
+
   return (
-    <div className="bg-card border border-border rounded-xl p-6 mb-6">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <label htmlFor="history-search" className="sr-only">
-              Buscar transacciones
-            </label>
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              id="history-search"
-              type="text"
-              placeholder="Buscar transacciones..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
-            />
-          </div>
+    <div className="bg-card border border-border rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+      {/* Todo en una fila en desktop, apilado y ordenado en mobile */}
+      <div className="flex flex-col md:flex-row gap-2 md:gap-3 items-stretch">
+        {/* Buscador */}
+        <div className="relative flex-1 min-w-0">
+          <label htmlFor="history-search" className="sr-only">
+            Buscar transacciones
+          </label>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            id="history-search"
+            type="text"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-3 py-2.5 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-sm text-foreground placeholder:text-muted-foreground"
+          />
         </div>
 
-        <div className="flex gap-2">
+        {/* Selectores de fecha */}
+        <div className="flex gap-1.5 items-center">
+          <Select
+            aria-label="Día"
+            placeholder="Día"
+            data={dayOptions}
+            value={date.day != null ? String(date.day) : null}
+            onChange={(v) => setDate({ ...date, day: v ? Number(v) : null })}
+            clearable
+            clearSectionMode="clear"
+            comboboxProps={{ withinPortal: false }}
+            styles={selectStyles}
+            size="md"
+          />
+          <Select
+            aria-label="Mes"
+            placeholder="Mes"
+            data={MONTHS}
+            value={date.month != null ? String(date.month) : null}
+            onChange={(v) => setDate({ ...date, month: v ? Number(v) : null })}
+            clearable
+            clearSectionMode="clear"
+            comboboxProps={{ withinPortal: false }}
+            styles={selectStyles}
+            size="md"
+          />
+          <Select
+            aria-label="Año"
+            placeholder="Año"
+            data={yearOptions}
+            value={date.year != null ? String(date.year) : null}
+            onChange={(v) => setDate({ ...date, year: v ? Number(v) : null })}
+            clearable
+            clearSectionMode="clear"
+            comboboxProps={{ withinPortal: false }}
+            styles={selectStyles}
+            size="md"
+          />
+          {hasAnyDate && (
+            <button
+              type="button"
+              onClick={() => setDate({ day: null, month: null, year: null })}
+              className="p-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors"
+              aria-label="Limpiar fecha"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* Botones de tipo */}
+        <div className="flex gap-2 items-center">
           <button
             type="button"
             onClick={() => setFilterType("all")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
               filterType === "all"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -48,34 +199,26 @@ export default function Filters({
           <button
             type="button"
             onClick={() => setFilterType("ingreso")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
               filterType === "ingreso"
                 ? "bg-green-500 text-white"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            Ingresos
+            Ingreso
           </button>
           <button
             type="button"
             onClick={() => setFilterType("gasto")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
               filterType === "gasto"
                 ? "bg-red-500 text-white"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            Gastos
+            Gasto
           </button>
         </div>
-
-        <button
-          type="button"
-          className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center gap-2"
-        >
-          <Download className="w-5 h-5" />
-          Exportar
-        </button>
       </div>
     </div>
   );

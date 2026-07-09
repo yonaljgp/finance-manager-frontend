@@ -11,10 +11,13 @@ import {
   useTransactions,
   type TransactionDataType,
   type TransactionType,
-} from "../hooks/usetransactions";
+} from "../hooks/useTransactions";
 
 const createTransactionsSchema = z.object({
-  amount: z.number().positive({ message: "El monto debe ser mayor que cero." }),
+  amount: z
+    .number()
+    .min(1, { message: "El monto debe ser mayor que cero." })
+    .positive({ message: "El monto debe ser mayor que cero." }),
   description: z
     .string()
     .min(3, { message: "La descripción es obligatoria." })
@@ -45,7 +48,7 @@ function Transactions() {
       description: "",
       category: "",
       date: new Date().toISOString().split("T")[0],
-      notes: "",
+      note: "",
     },
   });
 
