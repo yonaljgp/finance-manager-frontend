@@ -201,7 +201,7 @@ export default function Filters({
             onClick={() => setFilterType("ingreso")}
             className={`px-3 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
               filterType === "ingreso"
-                ? "bg-green-500 text-white"
+                ? "bg-income text-income-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
@@ -212,7 +212,7 @@ export default function Filters({
             onClick={() => setFilterType("gasto")}
             className={`px-3 py-2 rounded-lg font-medium text-xs md:text-sm transition-colors ${
               filterType === "gasto"
-                ? "bg-red-500 text-white"
+                ? "bg-expense text-expense-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >

@@ -26,7 +26,7 @@ export default function LoansSummary({
 
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="bg-blue-500/10 p-3 rounded-lg"></div>
+          <div className="bg-info/10 p-3 rounded-lg"></div>
         </div>
         <p className="text-sm text-muted-foreground">Pago Mensual Total</p>
         <p className="text-3xl font-semibold text-foreground mt-1">
@@ -36,7 +36,7 @@ export default function LoansSummary({
 
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="bg-orange-500/10 p-3 rounded-lg"></div>
+          <div className="bg-pending/10 p-3 rounded-lg"></div>
         </div>
         <p className="text-sm text-muted-foreground">Tasa Promedio</p>
         <p className="text-3xl font-semibold text-foreground mt-1">

@@ -10,7 +10,7 @@ export default function TransactionHeader({
   return (
     <div className="mb-8">
       <h2 className="text-3xl font-semibold text-foreground">
-        {isIncome ? "Registrar ingreso" : "Registrar gasto"}
+        {isIncome ? "Registrar Ingreso" : "Registrar Gasto"}
       </h2>
       <p className="text-muted-foreground mt-1">
         Registra tus ingresos y gastos

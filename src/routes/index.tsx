@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import RequireState from "./RequireState";
+import RequireState from "../utils/RequireState";
 import Home from "../pages/home";
 import Transactions from "../pages/transactions";
 import History from "../pages/history";

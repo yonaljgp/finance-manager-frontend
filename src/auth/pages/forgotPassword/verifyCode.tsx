@@ -56,7 +56,7 @@ function VerifyCode({ title, kind, navigateTo, fetchTo }: VerifyCodeProps) {
           />
 
           {localError && (
-            <span className="text-red-500 text-sm text-center font-semibold">
+            <span className="text-destructive text-sm text-center font-semibold">
               {localError}
             </span>
           )}

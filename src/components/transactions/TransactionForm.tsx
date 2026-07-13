@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Calendar, DollarSign, FileText, Tag } from "lucide-react";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
-
+import type { FieldErrors, UseFormRegister, Control } from "react-hook-form";
+import { DateInput } from "@mantine/dates";
+import { Controller } from "react-hook-form";
 type TransactionType = "ingreso" | "gasto";
 
 export interface TransactionFormValues {
@@ -15,6 +16,7 @@ export interface TransactionFormValues {
 interface TransactionFormProps {
   transactionType: TransactionType;
   register: UseFormRegister<TransactionFormValues>;
+  control: Control<TransactionFormValues>;
   errors: FieldErrors<TransactionFormValues>;
   handleSubmit: (
     callback: (data: TransactionFormValues) => void,
@@ -38,6 +40,7 @@ const categories: Record<TransactionType, string[]> = {
 export default function TransactionForm({
   transactionType,
   register,
+  control,
   errors,
   handleSubmit,
   onSubmit,
@@ -68,7 +71,9 @@ export default function TransactionForm({
           />
         </div>
         {errors.amount && (
-          <p className="mt-2 text-sm text-red-500">{errors.amount.message}</p>
+          <p className="mt-2 text-sm text-destructive">
+            {errors.amount.message}
+          </p>
         )}
       </div>
 
@@ -90,7 +95,7 @@ export default function TransactionForm({
           />
         </div>
         {errors.description && (
-          <p className="mt-2 text-sm text-red-500">
+          <p className="mt-2 text-sm text-destructive">
             {errors.description.message}
           </p>
         )}
@@ -121,7 +126,9 @@ export default function TransactionForm({
           </select>
         </div>
         {errors.category && (
-          <p className="mt-2 text-sm text-red-500">{errors.category.message}</p>
+          <p className="mt-2 text-sm text-destructive">
+            {errors.category.message}
+          </p>
         )}
       </div>
 
@@ -133,16 +140,44 @@ export default function TransactionForm({
           Fecha
         </label>
         <div className="relative">
-          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            id="transaction-date"
-            type="date"
-            {...register("date")}
-            className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
+          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+          <Controller
+            name="date"
+            control={control}
+            render={({ field }) => (
+              <DateInput
+                id="transaction-date"
+                {...field}
+                clearable
+                valueFormat="DD/MM/YYYY"
+                maxDate={new Date()}
+                value={field.value ? new Date(field.value) : null}
+                onChange={(date) => field.onChange(date)}
+                className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
+                placeholder="DD/MM/YYYY"
+                classNames={{
+                  input:
+                    "!border-0 !bg-transparent !focus:ring-0 !outline-none text-foreground placeholder:text-muted-foreground p-0",
+                  root: "m-0 p-0",
+                  wrapper: "m-0 p-0",
+                }}
+                styles={{
+                  input: {
+                    border: "none !important",
+                    background: "transparent !important",
+                    outline: "none !important",
+                    boxShadow: "none !important",
+                  },
+                  wrapper: {
+                    border: "none !important",
+                  },
+                }}
+              />
+            )}
           />
         </div>
         {errors.date && (
-          <p className="mt-2 text-sm text-red-500">{errors.date.message}</p>
+          <p className="mt-2 text-sm text-destructive">{errors.date.message}</p>
         )}
       </div>
 
@@ -166,8 +201,8 @@ export default function TransactionForm({
         type="submit"
         className={`w-full py-4 rounded-lg font-medium transition-colors ${
           transactionType === "ingreso"
-            ? "bg-green-500 hover:bg-green-600 text-white"
-            : "bg-red-500 hover:bg-red-600 text-white"
+            ? "bg-income hover:brightness-90 text-income-foreground"
+            : "bg-expense hover:brightness-90 text-expense-foreground"
         }`}
       >
         Registrar {transactionType === "ingreso" ? "Ingreso" : "Gasto"}

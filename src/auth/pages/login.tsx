@@ -49,10 +49,10 @@ function LoginPage() {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
+              className="border border-border rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.email && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {errors.email.message}
               </span>
             )}
@@ -66,7 +66,7 @@ function LoginPage() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Contraseña"
                 {...register("password")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
+                className="w-full rounded-md border border-border py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
               <button
                 type="button"
@@ -77,13 +77,13 @@ function LoginPage() {
                 title={
                   viewPassword ? "Ocultar contraseña" : "Mostrar contraseña"
                 }
-                className="button absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-gray-500"
+                className="button absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-muted-foreground"
               >
                 {viewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
-              <span className="text-sm text-red-500 font-semibold">
+              <span className="text-sm text-destructive font-semibold">
                 {errors.password.message}
               </span>
             )}
@@ -95,7 +95,7 @@ function LoginPage() {
           </div>
 
           {authError && (
-            <p className="text-sm text-red-500 text-center font-semibold">
+            <p className="text-sm text-destructive text-center font-semibold">
               {authError}
             </p>
           )}

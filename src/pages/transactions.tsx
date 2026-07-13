@@ -3,7 +3,6 @@ import TransactionHeader from "../components/transactions/TransactionHeader";
 import TransactionTypeToggle from "../components/transactions/TransactionTypeToggle";
 import TransactionForm from "../components/transactions/TransactionForm";
 import TransactionSuccessAlert from "../components/transactions/TransactionSuccessAlert";
-import TransactionStats from "../components/transactions/TransactionStats";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -38,6 +37,7 @@ function Transactions() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<TransactionDataType>({
@@ -80,13 +80,12 @@ function Transactions() {
           <TransactionForm
             transactionType={transactionType}
             register={register}
+            control={control}
             errors={errors}
             handleSubmit={handleSubmit}
             onSubmit={onSubmit}
           />
         </div>
-
-        <TransactionStats />
       </div>
     </div>
   );

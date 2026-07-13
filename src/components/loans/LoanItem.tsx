@@ -12,10 +12,10 @@ export default function LoanItem({ loan }: { loan: Loans }) {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-4">
           <div
-            className={`p-3 rounded-lg ${loan.status === "pendiente" ? "bg-purple-500/10" : "bg-green-500/10"}`}
+            className={`p-3 rounded-lg ${loan.status === "pendiente" ? "bg-info/10" : "bg-income/10"}`}
           >
             <CreditCard
-              className={`w-6 h-6 ${loan.status === "pendiente" ? "text-purple-500" : "text-green-500"}`}
+              className={`w-6 h-6 ${loan.status === "pendiente" ? "text-info" : "text-income"}`}
             />
           </div>
           <div>
@@ -28,7 +28,7 @@ export default function LoanItem({ loan }: { loan: Loans }) {
           </div>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${loan.status === "pendiente" ? "bg-orange-500/10 text-orange-500" : "bg-green-500/10 text-green-500"}`}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${loan.status === "pendiente" ? "bg-pending/10 text-pending" : "bg-income/10 text-income"}`}
         >
           {loan.status === "pendiente" ? "Pendiente" : "Pagado"}
         </span>
@@ -45,7 +45,7 @@ export default function LoanItem({ loan }: { loan: Loans }) {
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 h-2 rounded-full transition-all"
+                className="bg-gradient-to-r from-info to-info/80 dark:from-info/90 dark:to-info h-2 rounded-full transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -60,7 +60,7 @@ export default function LoanItem({ loan }: { loan: Loans }) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Saldo Pendiente</p>
-              <p className="font-semibold text-red-500 mt-1">
+              <p className="font-semibold text-expense mt-1">
                 ${loan.remainingAmount.toLocaleString()}
               </p>
             </div>
@@ -81,9 +81,9 @@ export default function LoanItem({ loan }: { loan: Loans }) {
 
           {loan.nextPayment &&
             new Date(loan.nextPayment) < SEVEN_DAYS_FROM_NOW && (
-              <div className="mt-4 bg-orange-500/10 dark:bg-orange-500/20 border border-orange-500/20 dark:border-orange-500/30 rounded-lg p-3 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                <p className="text-sm text-orange-500 dark:text-orange-400">
+              <div className="mt-4 bg-pending/10 dark:bg-pending/20 border border-pending/20 dark:border-pending/30 rounded-lg p-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-pending dark:text-pending" />
+                <p className="text-sm text-pending dark:text-pending">
                   Próximo pago en menos de 7 días
                 </p>
               </div>
@@ -92,8 +92,8 @@ export default function LoanItem({ loan }: { loan: Loans }) {
       )}
 
       {loan.status === "pagado" && (
-        <div className="bg-green-500/10 dark:bg-green-500/20 border border-green-500/20 dark:border-green-500/30 rounded-lg p-4">
-          <p className="text-sm text-green-500 dark:text-green-400 font-medium">
+        <div className="bg-income/10 dark:bg-income/20 border border-income/20 dark:border-income/30 rounded-lg p-4">
+          <p className="text-sm text-income dark:text-income font-medium">
             ✓ Préstamo completamente pagado - $
             {loan.totalAmount.toLocaleString()}
           </p>

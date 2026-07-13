@@ -13,9 +13,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@mantine/core": "^9.4.1",
+    "@mantine/dates": "^9.4.1",
     "@mantine/hooks": "^9.4.1",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.18.0",
+    "dayjs": "^1.11.21",
     "lucide-react": "^1.16.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

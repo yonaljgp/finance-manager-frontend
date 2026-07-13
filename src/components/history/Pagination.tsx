@@ -48,7 +48,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(safePage - 1)}
           disabled={safePage <= 1}
-          className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="p-2 rounded-lg bg-muted text-muted-foreground bg-muted-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-muted"
           aria-label="Página anterior"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -71,7 +71,7 @@ export default function Pagination({
               className={`min-w-9 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 p === safePage
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted text-muted-foreground bg-muted-hover"
               }`}
             >
               {p}
@@ -83,7 +83,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(safePage + 1)}
           disabled={safePage >= totalPages}
-          className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="p-2 rounded-lg bg-muted text-muted-foreground bg-muted-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-muted"
           aria-label="Página siguiente"
         >
           <ChevronRight className="w-4 h-4" />

@@ -1,14 +1,17 @@
 import { ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
-import type HistoryType from "../../types/history";
+import { type HistoryType } from "../../types/history";
 import { Button, EmptyState } from "@mantine/core";
 import { Search } from "lucide-react";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
+import CardTransactions from "./CardTransactions";
 
 type Props = {
   transactions: HistoryType[];
   setResetFilters: (reset: boolean) => void;
 };
 
-const formatDate = (dateString: string) => {
+export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const formato = date.toLocaleDateString("es-ES", {
     day: "2-digit",
@@ -23,6 +26,8 @@ export default function TransactionsTable({
   transactions,
   setResetFilters,
 }: Props) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [opened, { open, close }] = useDisclosure(false);
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -43,11 +48,15 @@ export default function TransactionsTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-border divide-black/0 dark:divide-white/5">
             {transactions.map((transaction) => (
               <tr
                 key={transaction.id}
-                className="hover:bg-accent/30 dark:hover:bg-accent/50 transition-colors"
+                className="bg-card-hover transition-colors"
+                onClick={() => {
+                  setSelectedId(transaction.id);
+                  open();
+                }}
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -58,12 +67,12 @@ export default function TransactionsTable({
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === "ingreso" ? "bg-green-500/10" : "bg-red-500/10"}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === "ingreso" ? "bg-income/10" : "bg-expense/10"}`}
                     >
                       {transaction.type === "ingreso" ? (
-                        <ArrowUpRight className="w-5 h-5 text-green-500" />
+                        <ArrowUpRight className="w-5 h-5 text-income" />
                       ) : (
-                        <ArrowDownRight className="w-5 h-5 text-red-500" />
+                        <ArrowDownRight className="w-5 h-5 text-expense" />
                       )}
                     </div>
                     <span className="font-medium text-foreground">
@@ -78,7 +87,7 @@ export default function TransactionsTable({
                 </td>
                 <td className="px-6 py-4 text-right">
                   <span
-                    className={`font-semibold ${transaction.type === "ingreso" ? "text-green-500" : "text-red-500"}`}
+                    className={`font-semibold ${transaction.type === "ingreso" ? "text-income" : "text-expense"}`}
                   >
                     {transaction.type === "gasto" ? "-" : "+"}
                     {transaction.amount.toFixed(2)} USD
@@ -90,6 +99,13 @@ export default function TransactionsTable({
         </table>
       </div>
 
+      {(() => {
+        const selected = transactions.find((t) => t.id === selectedId);
+        return selected ? (
+          <CardTransactions history={selected} opened={opened} close={close} />
+        ) : null;
+      })()}
+
       {transactions.length === 0 && (
         <EmptyState
           icon={<Search className="w-12 h-12" />}
@@ -99,7 +115,7 @@ export default function TransactionsTable({
         >
           <EmptyState.Actions>
             <Button variant="default" onClick={() => setResetFilters(true)}>
-              Reset filters
+              restablecer filtros
             </Button>
           </EmptyState.Actions>
         </EmptyState>

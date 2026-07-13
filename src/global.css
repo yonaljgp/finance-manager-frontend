@@ -1,28 +1,64 @@
+/* =============================================================
+ *  DESIGN TOKENS — Finance Manager
+ *  -----------------------------------------------------------
+ *  Este archivo define los design tokens (variables CSS) del
+ *  sistema y los expone como utilidades de Tailwind (`.bg-*`,
+ *  `.text-*`, `.border-*`).
+ *
+ *  Estructura:
+ *    1.  Imports
+ *    2.  Variables CSS — modo claro  (:root)
+ *    3.  Variables CSS — modo oscuro (:root[data-mantine-color-scheme="dark"])
+ *    4.  Reset y estilos base del documento
+ *    5.  Utilidades de color (mapean variables → clases Tailwind)
+ *    6.  Utilidades semánticas del dominio (income / expense)
+ *    7.  Utilidades de componentes (link, button)
+ * ============================================================= */
+
+/* ---------- 1. Imports ---------- */
 @import "tailwindcss";
 
-@theme {
-  --color-active: var(--active);
-}
-
+/* ---------- 2. Variables CSS — Modo claro ----------
+ *  Tokens base del sistema. Cada variable sigue el patrón:
+ *    -foreground → color de texto/contenido sobre el color base.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
+  /* Superficie */
+  --background: #ffffff; /* Fondo general de la app */
+  --foreground: oklch(0.145 0 0); /* Texto principal sobre background */
+  --card: #ffffff; /* Fondo de tarjetas, modales, paneles */
   --card-foreground: oklch(0.145 0 0);
-  --primary: #030213;
+  --card-hover: #f3f4f6; /* Fondo de card en hover — suave pero notable */
+
+  /* Marca / acción principal */
+  --primary: #030213; /* Botones primarios, enlaces fuertes */
   --primary-foreground: oklch(1 0 0);
+
+  /* Marca secundaria */
   --secondary: oklch(0.95 0.0058 264.53);
   --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
+
+  /* Estados neutros */
+  --muted: #ececf0; /* Fondo de inputs deshabilitados, tags suaves */
+  --muted-foreground: #717182; /* Texto secundario, labels, placeholders */
+  --accent: #e9ebef; /* Fondo de hover sobre filas, énfasis sutil */
   --accent-foreground: #030213;
+
+  /* Estado destructivo (errores, eliminar) */
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
-  --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
+
+  /* Bordes e inputs */
+  --border: rgba(0, 0, 0, 0.1); /* Bordes de inputs, cards, separadores */
+  --input: transparent; /* Fondo interno de inputs */
+  --input-background: #f3f3f5; /* Fondo visible de inputs */
+  --switch-background: #cbced4; /* Track del switch toggle */
+  --muted-hover: #e0e0e5; /* Fondo de superficies muted en hover — un escalón más fuerte */
+
+  /* Color de marca (CTA, focus ring, links, navbar activo) */
+  --active: oklch(0.627 0.26 304.9);
+
+  /* Sidebar / navegación lateral */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #030213;
@@ -30,33 +66,58 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
+
+  /* Paleta para gráficos (chart-1 … chart-5) */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --active: oklch(0.627 0.26 304.9);
+
+  /* Dominio: ingresos (verde) — usado en transactions, history, summary */
+  --income: #16a34a;
+  --income-foreground: #ffffff;
+
+  /* Dominio: gastos (rojo) — usado en transactions, history, summary */
+  --expense: #dc2626;
+  --expense-foreground: #ffffff;
 }
 
+/* ---------- 3. Variables CSS — Modo oscuro ---------- */
 :root[data-mantine-color-scheme="dark"] {
+  /* Superficie */
   --background: #0a0a0f;
   --foreground: oklch(0.985 0 0);
   --card: #16161f;
   --card-foreground: oklch(0.985 0 0);
+  --card-hover: #1f1f2e; /* Fondo de card en hover — sutil sobre fondo oscuro */
+
+  /* Marca / acción principal (invertida en oscuro) */
   --primary: oklch(0.985 0 0);
   --primary-foreground: oklch(0.145 0 0);
+
+  /* Marca secundaria */
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
+
+  /* Estados neutros */
   --muted: #1f1f2e;
   --muted-foreground: oklch(0.708 0 0);
   --accent: #1f1f2e;
   --accent-foreground: oklch(0.985 0 0);
+
+  /* Estado destructivo */
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
+
+  /* Bordes e inputs */
   --border: rgba(255, 255, 255, 0.08);
   --input: transparent;
   --input-background: #1f1f2e;
   --switch-background: #cbced4;
+  --muted-hover: #2a2a3a; /* Fondo de superficies muted en hover — un escalón más fuerte */
+
+  /* Sidebar / navegación lateral */
   --sidebar: #16161f;
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.985 0 0);
@@ -64,11 +125,23 @@
   --sidebar-accent: #1f1f2e;
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* Paleta para gráficos (chart-1 y chart-2 se mantienen del modo claro;
+     chart-3/4/5 se redefinen para mejor contraste en oscuro) */
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+
+  /* Dominio: ingresos (verde más brillante en oscuro) */
+  --income: #22c55e;
+  --income-foreground: #052e16;
+
+  /* Dominio: gastos (rojo más brillante en oscuro) */
+  --expense: #ef4444;
+  --expense-foreground: #450a0a;
 }
 
+/* ---------- 4. Reset y estilos base ---------- */
 #root {
   width: 100%;
   height: 100%;
@@ -84,18 +157,31 @@ body {
   color: var(--foreground);
 }
 
+/* =============================================================
+ *  5. Utilidades de color — Sistema 
+ *  -----------------------------------------------------------
+ *  Cada bloque expone una variable como clase utility.
+ * ============================================================= */
+
+/* Superficie */
 .bg-background {
   background-color: var(--background);
 }
 .text-foreground {
   color: var(--foreground);
 }
+
 .bg-card {
   background-color: var(--card);
 }
 .text-card-foreground {
   color: var(--card-foreground);
 }
+.bg-card-hover:hover {
+  background-color: var(--card-hover);
+}
+
+/* Marca */
 .bg-primary {
   background-color: var(--primary);
 }
@@ -105,33 +191,55 @@ body {
 .text-primary-foreground {
   color: var(--primary-foreground);
 }
+
 .bg-secondary {
   background-color: var(--secondary);
 }
 .text-secondary-foreground {
   color: var(--secondary-foreground);
 }
+
+/* Estados neutros */
 .bg-muted {
   background-color: var(--muted);
 }
 .text-muted-foreground {
   color: var(--muted-foreground);
 }
+.bg-muted-hover:hover {
+  background-color: var(--muted-hover);
+}
+
 .bg-accent {
   background-color: var(--accent);
 }
 .text-accent-foreground {
   color: var(--accent-foreground);
 }
+
+/* Destructivo / error */
 .bg-destructive {
   background-color: var(--destructive);
 }
 .text-destructive-foreground {
   color: var(--destructive-foreground);
 }
+
+/* Bordes e inputs */
 .border-border {
   border-color: var(--border);
 }
+.bg-input {
+  background-color: var(--input);
+}
+.bg-input-background {
+  background-color: var(--input-background);
+}
+.bg-switch-background {
+  background-color: var(--switch-background);
+}
+
+/* Color de marca (active): navbar activo, focus ring, links */
 .bg-active {
   background-color: var(--active);
 }
@@ -144,15 +252,8 @@ body {
 .ring-active {
   --tw-ring-color: var(--active);
 }
-.bg-input {
-  background-color: var(--input);
-}
-.bg-input-background {
-  background-color: var(--input-background);
-}
-.bg-switch-background {
-  background-color: var(--switch-background);
-}
+
+/* Sidebar */
 .bg-sidebar {
   background-color: var(--sidebar);
 }
@@ -177,6 +278,65 @@ body {
 .shadow-sidebar {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
+
+/* =============================================================
+ *  6. Utilidades semánticas del dominio
+ *  -----------------------------------------------------------
+ *  Colores que representan conceptos del negocio (no UI).
+ * ============================================================= */
+
+/* Ingresos (verde) — monto positivo, alerta de éxito, botón "Registrar Ingreso" */
+.bg-income {
+  background-color: var(--income);
+  color: var(--income-foreground);
+}
+.text-income {
+  color: var(--income);
+}
+.bg-income\/10 {
+  background-color: color-mix(in srgb, var(--income) 10%, transparent);
+}
+.bg-income\/20 {
+  background-color: color-mix(in srgb, var(--income) 20%, transparent);
+}
+.border-income {
+  border-color: var(--income);
+}
+.border-income\/20 {
+  border-color: color-mix(in srgb, var(--income) 20%, transparent);
+}
+.border-income\/30 {
+  border-color: color-mix(in srgb, var(--income) 30%, transparent);
+}
+
+/* Gastos (rojo) — monto negativo, mensaje de error de validación, botón "Registrar Gasto" */
+.bg-expense {
+  background-color: var(--expense);
+  color: var(--expense-foreground);
+}
+.text-expense {
+  color: var(--expense);
+}
+.bg-expense\/10 {
+  background-color: color-mix(in srgb, var(--expense) 10%, transparent);
+}
+.bg-expense\/20 {
+  background-color: color-mix(in srgb, var(--expense) 20%, transparent);
+}
+.border-expense {
+  border-color: var(--expense);
+}
+.border-expense\/20 {
+  border-color: color-mix(in srgb, var(--expense) 20%, transparent);
+}
+.border-expense\/30 {
+  border-color: color-mix(in srgb, var(--expense) 30%, transparent);
+}
+
+/* =============================================================
+ *  7. Utilidades de componentes */
+
+/* Enlace estilado con color de marca */
 .link {
   color: var(--active);
   text-decoration: none;
@@ -186,21 +346,19 @@ body {
   text-decoration: underline;
 }
 
+/* Botón genérico: añade feedback de hover/active/disabled */
 .button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   user-select: none;
 }
-
 .button:hover {
   filter: brightness(1.1);
 }
-
 .button:active:not(:disabled) {
   transform: scale(0.97);
   filter: brightness(0.9);
 }
-
 .button:disabled {
   cursor: not-allowed;
   filter: grayscale(0.4);

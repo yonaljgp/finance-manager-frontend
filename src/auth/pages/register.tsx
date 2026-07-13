@@ -88,10 +88,10 @@ function Register() {
               type="text"
               placeholder="Nombre"
               {...register("name")}
-              className="border border-gray-300 w-full rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
+              className="border border-border w-full rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.name && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {errors.name.message}
               </span>
             )}
@@ -104,10 +104,10 @@ function Register() {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
+              className="border border-border rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
             />
             {errors.email && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {errors.email.message}
               </span>
             )}
@@ -121,7 +121,7 @@ function Register() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Contraseña"
                 {...register("password")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
+                className="w-full rounded-md border border-border py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
               <button
                 type="button"
@@ -139,7 +139,7 @@ function Register() {
               </button>
             </div>
             {errors.password && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {errors.password.message}
               </span>
             )}
@@ -178,7 +178,9 @@ function Register() {
           </p>
 
           {serverError && (
-            <p className="text-sm text-red-500 text-center">{serverError}</p>
+            <p className="text-sm text-destructive text-center">
+              {serverError}
+            </p>
           )}
 
           <button

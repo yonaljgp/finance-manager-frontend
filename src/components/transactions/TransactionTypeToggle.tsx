@@ -23,13 +23,13 @@ export default function TransactionTypeToggle({
           aria-pressed={transactionType === "ingreso"}
           className={`p-6 rounded-lg border-2 transition-all ${
             transactionType === "ingreso"
-              ? "border-green-500 bg-green-500/10"
-              : "border-border hover:border-green-500/50"
+              ? "border-income bg-income/10"
+              : "border-border hover:border-income/50"
           }`}
         >
           <div className="flex flex-col items-center gap-3">
-            <div className="bg-green-500/10 p-3 rounded-full">
-              <ArrowUpRight className="w-6 h-6 text-green-500" />
+            <div className="bg-income/10 p-3 rounded-full">
+              <ArrowUpRight className="w-6 h-6 text-income" />
             </div>
             <span className="font-medium">Ingreso</span>
           </div>
@@ -41,13 +41,13 @@ export default function TransactionTypeToggle({
           aria-pressed={transactionType === "gasto"}
           className={`p-6 rounded-lg border-2 transition-all ${
             transactionType === "gasto"
-              ? "border-red-500 bg-red-500/10"
-              : "border-border hover:border-red-500/50"
+              ? "border-expense bg-expense/10"
+              : "border-border hover:border-expense/50"
           }`}
         >
           <div className="flex flex-col items-center gap-3">
-            <div className="bg-red-500/10 p-3 rounded-full">
-              <ArrowDownRight className="w-6 h-6 text-red-500" />
+            <div className="bg-expense/10 p-3 rounded-full">
+              <ArrowDownRight className="w-6 h-6 text-expense" />
             </div>
             <span className="font-medium">Gasto</span>
           </div>

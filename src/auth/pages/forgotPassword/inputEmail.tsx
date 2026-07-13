@@ -59,13 +59,15 @@ function InputEmail() {
             {...register("email")}
             type="email"
             placeholder="correo@ejemplo.com"
-            className="w-full rounded-md border border-gray-300 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
+            className="w-full rounded-md border border-border py-2 px-4 focus:outline-none focus:ring-2 focus:ring-active"
           />
           {errors.email && (
-            <span className="text-red-500 text-sm">{errors.email.message}</span>
+            <span className="text-destructive text-sm">
+              {errors.email.message}
+            </span>
           )}
           {localError && (
-            <span className="text-red-500 text-sm text-center font-semibold mt-1">
+            <span className="text-destructive text-sm text-center font-semibold mt-1">
               {localError}
             </span>
           )}

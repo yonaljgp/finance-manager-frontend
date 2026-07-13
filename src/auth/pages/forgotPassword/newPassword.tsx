@@ -108,18 +108,18 @@ function NewPassword() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Nueva Contraseña"
                 {...register("password")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
+                className="w-full rounded-md border border-border py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
               <button
                 type="button"
                 onClick={() => setViewPassword(!viewPassword)}
-                className="absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-gray-500"
+                className="absolute inset-y-0 right-3 flex items-center justify-center rounded-full text-muted-foreground"
               >
                 {viewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
-              <span className="text-sm text-red-500">
+              <span className="text-sm text-destructive">
                 {errors.password.message}
               </span>
             )}
@@ -135,11 +135,11 @@ function NewPassword() {
                 type={viewPassword ? "text" : "password"}
                 placeholder="Confirmar Contraseña"
                 {...register("confirmPassword")}
-                className="w-full rounded-md border border-gray-300 py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
+                className="w-full rounded-md border border-border py-2 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-active"
               />
             </div>
             {errors.confirmPassword && (
-              <span className="text-sm text-red-500 font-semibold">
+              <span className="text-sm text-destructive font-semibold">
                 {errors.confirmPassword.message}
               </span>
             )}
@@ -181,7 +181,7 @@ function NewPassword() {
           </div>
 
           {localError && (
-            <span className="text-red-500 text-sm text-center font-medium mt-2">
+            <span className="text-destructive text-sm text-center font-medium mt-2">
               {localError}
             </span>
           )}

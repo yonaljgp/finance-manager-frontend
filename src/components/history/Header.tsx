@@ -14,7 +14,7 @@ function Header() {
       <div>
         <button
           type="button"
-          className="flex-1 px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 px-6 py-3 bg-card text-accent-foreground rounded-lg bg-card-hover transition-colors flex items-center justify-center gap-2"
         >
           <Download className="w-5 h-5" />
           <p className="hidden md:block">Exportar</p>

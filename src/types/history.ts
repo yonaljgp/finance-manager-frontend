@@ -1,21 +1,21 @@
 export type FilterType = "all" | "ingreso" | "gasto";
 
 /** Filtros de fecha separados: cada parte es independiente y opcional. */
-export interface DateFilter {
+export interface DateFilterType {
   day: number | null;
   month: number | null;
   year: number | null;
 }
 
-export interface TransactionsQuery {
+export interface TypeTransactionsQueryType {
   search: string;
   type: FilterType;
-  date: DateFilter;
+  date: DateFilterType;
   page: number;
   pageSize: number;
 }
 
-export interface PaginatedResponse<T> {
+export interface PaginatedResponseType<T> {
   items: T[];
   total: number;
   page: number;
@@ -23,7 +23,7 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-export default interface History {
+export interface HistoryType {
   id: number;
   date: string;
   description: string;

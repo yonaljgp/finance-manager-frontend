@@ -12,9 +12,9 @@ export default function TransactionSuccessAlert({
   }
 
   return (
-    <div className="mb-6 bg-green-500/10 dark:bg-green-500/20 border border-green-500/20 dark:border-green-500/30 rounded-lg p-4 flex items-center gap-3">
-      <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
-      <p className="text-green-500 dark:text-green-400 font-medium">
+    <div className="mb-6 bg-income/10 dark:bg-income/20 border border-income/20 dark:border-income/30 rounded-lg p-4 flex items-center gap-3">
+      <CheckCircle className="w-5 h-5 text-income dark:text-income" />
+      <p className="text-income dark:text-income font-medium">
         ¡Transacción registrada exitosamente!
       </p>
     </div>
