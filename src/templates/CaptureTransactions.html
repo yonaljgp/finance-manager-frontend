@@ -1,0 +1,120 @@
+<!-- filepath: src/templates/CaptureTransactions.html
+     Plantilla del recibo de transacción. Es HTML estático puro.
+     Los placeholders {{clave}} se reemplazan en tiempo de ejecución
+     con los valores de la transacción.
+     Todos los colores son hex/rgb para evitar problemas con html2canvas
+     (no soporta oklch).
+-->
+<div
+  data-receipt
+  style="width: 380px; padding: 28px; background: {{cardBg}}; border: 1px solid {{cardBorder}}; font-family: Roboto, Helvetica, sans-serif; color: {{bodyColor}}; box-sizing: border-box; text-align: center;"
+>
+  <!-- Encabezado: ícono + tipo centrados -->
+  <div
+    style="
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      line-height: 1;
+    "
+  >
+    <div
+      style="width: 64px; height: 64px; border-radius: 9999px; background: {{accentBg}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 0;"
+    >
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="{{accentColor}}"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        style="display: block"
+      >
+        {{arrowPath}}
+      </svg>
+    </div>
+    <h2
+      style="margin: 0; padding: 0; font-size: 25px; font-weight: 600; color: {{titleColor}}; line-height: 1; display: flex; align-items: center;"
+    >
+      {{tipoCapitalizado}}
+    </h2>
+  </div>
+
+  <!-- Monto destacado -->
+  <div
+    style="padding: 18px 16px; border-radius: 12px; background: {{mutedBg}}; border: 1px solid {{cardBorder}}; margin-bottom: 22px;"
+  >
+    <div
+      style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: {{mutedText}}; font-weight: 500; margin-bottom: 6px;"
+    >
+      Monto
+    </div>
+    <div
+      style="font-size: 28px; font-weight: 700; color: {{accentColor}}; line-height: 1.2;"
+    >
+      {{montoConSigno}}
+    </div>
+  </div>
+
+  <!-- Detalles -->
+  <div style="text-align: left; font-size: 14px">
+    <div style="margin-bottom: 12px">
+      <div
+        style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: {{mutedText}}; font-weight: 500; margin-bottom: 2px;"
+      >
+        Número de Transacción
+      </div>
+      <div style="color: {{bodyColor}}; word-break: break-word;">
+        {{numeroTransaccion}}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 12px">
+      <div
+        style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: {{mutedText}}; font-weight: 500; margin-bottom: 2px;"
+      >
+        Fecha
+      </div>
+      <div style="color: {{bodyColor}}; word-break: break-word;">
+        {{fechaFormateada}}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 12px">
+      <div
+        style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: {{mutedText}}; font-weight: 500; margin-bottom: 2px;"
+      >
+        Descripción
+      </div>
+      <div style="color: {{bodyColor}}; word-break: break-word;">
+        {{descripcion}}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 12px">
+      <div
+        style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: {{mutedText}}; font-weight: 500; margin-bottom: 2px;"
+      >
+        Categoría
+      </div>
+      <div style="color: {{bodyColor}}; word-break: break-word;">
+        {{categoria}}
+      </div>
+    </div>
+
+    {{bloqueNota}}
+  </div>
+
+  <!-- Pie -->
+  <div
+    style="margin-top: 40px; padding-top: 20px; border-top: 1px solid {{cardBorder}}; text-align: center;"
+  >
+    <span style="font-size: 11px; color: {{footerText}};"
+      >©Finance Manager</span
+    >
+  </div>
+</div>

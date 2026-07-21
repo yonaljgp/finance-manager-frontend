@@ -7,10 +7,13 @@ import {
   StickyNote,
   Download,
   X,
+  ArrowLeftRight,
 } from "lucide-react";
 import { type HistoryType } from "../../types/history";
 import { formatDate } from "./TransactionsTable";
 import { Modal } from "@mantine/core";
+import { captureTransactions } from "../../templates/captureTransactions";
+import { createCapture } from "../../utils/createCapture";
 
 interface CardTransactionsProps {
   history: HistoryType;
@@ -24,6 +27,22 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
   const isIncome = history.type === "ingreso";
   const accentColor = isIncome ? "text-income" : "text-expense";
   const accentBg = isIncome ? "bg-income/10" : "bg-expense/10";
+  const transaccionActual = history;
+
+  const handleDownload = async (id: number) => {
+    // Detectamos el tema actual
+    const isDark =
+      document.documentElement.classList.contains("dark") ||
+      document.documentElement.getAttribute("data-mantine-color-scheme") ===
+        "dark" ||
+      localStorage.getItem("mantine-color-scheme-value") === "dark";
+
+    // 1. Generamos el HTMLElement del recibo a partir de la plantilla HTML
+    const receiptElement = captureTransactions(transaccionActual, isDark);
+
+    // 2. createCapture se encarga de montar, capturar y limpiar
+    await createCapture(receiptElement, `recibo_${id}.png`);
+  };
 
   return (
     <Modal
@@ -35,7 +54,7 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
         timingFunction: "linear",
       }}
     >
-      <div className="flex flex-col gap-6 p-2">
+      <div className="flex flex-col gap-10 p-2">
         <header className="flex items-center ml-[25%] gap-4">
           <div
             className={`w-14 h-14 rounded-full flex items-center justify-center ${accentBg}`}
@@ -48,7 +67,7 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
             )}
           </div>
           <div className="flex flex-col">
-            <h2 className="text-2xl font-semibold text-foreground leading-tight">
+            <h2 className="text-3xl font-semibold text-foreground leading-tight">
               {Capitalize(history.type)}
             </h2>
           </div>
@@ -70,6 +89,11 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
         {/* ── Detalles en lista con íconos ────────────────────────── */}
         <ul className="flex flex-col gap-5 text-sm">
           <DetailRow
+            icon={<ArrowLeftRight className="w-4 h-4" />}
+            label="Número de transacción"
+            value={String(history.id).padStart(8, "0")}
+          />
+          <DetailRow
             icon={<Calendar className="w-4 h-4" />}
             label="Fecha"
             value={formatDate(history.date)}
@@ -84,27 +108,22 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
             label="Categoría"
             value={history.category}
           />
-        </ul>
 
-        {/* ── Nota (opcional) en callout ───────────────────────────── */}
-        {history.note && (
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border">
-            <StickyNote className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="flex flex-col gap-1 min-w-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                Nota
-              </span>
-              <p className="text-sm text-foreground wrap-break-words">
-                {history.note}
-              </p>
-            </div>
-          </div>
-        )}
+          {/* ── Nota (opcional) en callout ───────────────────────────── */}
+          {history.note && (
+            <DetailRow
+              icon={<StickyNote className="w-4 h-4" />}
+              label="Note"
+              value={history.note}
+            />
+          )}
+        </ul>
 
         {/* ── Acciones ────────────────────────────────────────────── */}
         <footer className="flex justify-center gap-8 pt-8 pb-3 border-t border-border">
           <button
             type="button"
+            onClick={() => handleDownload(transaccionActual.id)}
             className="button inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
                        text-foreground bg-card border border-border
                        shadow-sm hover:shadow-md bg-card-hover
