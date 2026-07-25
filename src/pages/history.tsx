@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import SummaryCards from "../components/history/SummaryCards";
 import Filters from "../components/history/Filters";
@@ -12,6 +12,7 @@ import type {
   HistoryType,
 } from "../types/history";
 import { useTransactions } from "../hooks/useTransactions";
+import { useTransactionsList } from "../hooks/useTransactionsList";
 
 const PAGE_SIZE = 15;
 
@@ -43,7 +44,16 @@ export default function History() {
   const [page, setPage] = useState(1);
   const [data, setData] =
     useState<PaginatedResponseType<HistoryType>>(EMPTY_PAGE);
-  const { getTransactions, isLoading } = useTransactions();
+  const { getTransactions, isLoading: isListLoading } = useTransactionsList();
+  const { getSummary, isLoading: isSummaryLoading } = useTransactions();
+
+  // Estado del resumen: ingresos / gastos del rango filtrado actual
+  // (independiente de la paginación).
+  const [summary, setSummary] = useState<{
+    totalIncome: number;
+    totalExpense: number;
+    rangeLabel: string;
+  }>({ totalIncome: 0, totalExpense: 0, rangeLabel: "totales" });
 
   // Reset a página 1 cuando cambian los filtros (no cuando cambia `page`).
   useEffect(() => {
@@ -68,21 +78,33 @@ export default function History() {
     };
   }, [debouncedSearch, filterType, date, page, getTransactions]);
 
-  // Resumen calculado sobre la página actual (consistente con la tabla).
-  const { totalIncome, totalExpense } = useMemo(() => {
-    let inc = 0;
-    let exp = 0;
-    for (const t of data.items) {
-      if (t.type === "ingreso") inc += t.amount;
-      else exp += Math.abs(t.amount);
-    }
-    return { totalIncome: inc, totalExpense: exp };
-  }, [data.items]);
+  // El resumen se recalcula con los filtros, **no** con la paginación.
+  useEffect(() => {
+    let cancelled = false;
+    const fetchSummary = async () => {
+      const result = await getSummary({
+        search: debouncedSearch,
+        type: filterType,
+        date,
+        page: 1,
+        pageSize: PAGE_SIZE,
+      });
+      if (!cancelled) setSummary(result);
+    };
+    fetchSummary();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, filterType, date, getSummary]);
 
   return (
     <div className="p-8">
       <Header />
-      <SummaryCards totalIncome={totalIncome} totalExpense={totalExpense} />
+      <SummaryCards
+        totalIncome={summary.totalIncome}
+        totalExpense={summary.totalExpense}
+        rangeLabel={summary.rangeLabel}
+      />
       <Filters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -105,7 +127,7 @@ export default function History() {
         onPageChange={setPage}
       />
 
-      {isLoading && (
+      {(isListLoading || isSummaryLoading) && (
         <p className="text-sm text-muted-foreground text-center mt-2">
           Cargando...
         </p>

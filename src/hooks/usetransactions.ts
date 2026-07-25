@@ -1,8 +1,15 @@
 import { api } from "../services/httpClient";
 import { toAppError, type SetError } from "../utils/apiErrorMapper";
 import { useCallback, useState } from "react";
-import type { PaginatedResponse, TransactionsQuery } from "../types/history";
-import type HistoryType from "../types/history";
+import type { TransactionsQueryType, DateFilterType } from "../types/history";
+
+/** Resumen agregado de ingresos / gastos para un set de filtros. */
+export interface TransactionsSummaryType {
+  totalIncome: number;
+  totalExpense: number;
+  /** Rango efectivo que se está reportando (texto legible). */
+  rangeLabel: string;
+}
 
 export interface TransactionDataType {
   amount: number;
@@ -33,20 +40,49 @@ async function runTask<T>(
   }
 }
 
+const MONTH_NAMES = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
+
 /**
- * Convierte los filtros UI a query params para el backend.
- * Si backend no soporta algún filtro, simplemente lo ignoramos.
+ * Genera una etiqueta humana para el rango filtrado.
+ * - Solo año  → "del año YYYY"
+ * - Mes + año → "de <mes> YYYY"
+ * - Sin filtros → "totales" (todas las transacciones)
  */
-function buildQueryParams(query: TransactionsQuery): Record<string, string> {
-  const params: Record<string, string> = {
-    page: String(query.page),
-    pageSize: String(query.pageSize),
-  };
-  if (query.search.trim()) params.search = query.search.trim();
-  if (query.type !== "all") params.type = query.type;
+export function buildRangeLabel(date: DateFilterType): string {
+  if (date.year != null && date.month != null) {
+    return `de ${MONTH_NAMES[date.month - 1]} ${date.year}`;
+  }
+  if (date.year != null) {
+    return `del año ${date.year}`;
+  }
+  return `del año ${new Date().getFullYear()}`;
+}
+
+/**
+ * Convierte los filtros UI a query params que se envían al backend.
+ * Solo se incluyen los campos presentes: `search`, `type`, `year`,
+ * `month`, `day`.
+ */
+function buildSummaryParams(
+  query: TransactionsQueryType,
+): Record<string, string> {
+  const params: Record<string, string> = {};
   if (query.date.year != null) params.year = String(query.date.year);
   if (query.date.month != null) params.month = String(query.date.month);
-  if (query.date.day != null) params.day = String(query.date.day);
+  else params.year = String(new Date().getFullYear());
   return params;
 }
 
@@ -54,51 +90,32 @@ export function useTransactions() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Pide transacciones paginadas. Si el backend responde con un array
-   * plano (versión anterior) lo envolvemos para mantener compatibilidad.
-   */
-  const getTransactions = useCallback(
-    async (
-      query: TransactionsQuery,
-    ): Promise<PaginatedResponse<HistoryType>> => {
+  const getSummary = useCallback(
+    async (query: TransactionsQueryType): Promise<TransactionsSummaryType> => {
+      const rangeLabel = buildRangeLabel(query.date);
       setIsLoading(true);
       const result = await runTask(
         setError,
-        "Error al obtener las transacciones",
+        "Error al obtener el resumen",
         async () => {
-          const response = await api.get<unknown>("/transactions", {
-            params: buildQueryParams(query),
+          const data = await api.get<{
+            totalIncome: number;
+            totalExpense: number;
+          }>("/transactions/summary", {
+            params: buildSummaryParams(query),
           });
-          if (Array.isArray(response)) {
-            const start = (query.page - 1) * query.pageSize;
-            const items = (response as HistoryType[]).slice(
-              start,
-              start + query.pageSize,
-            );
-            const total = (response as HistoryType[]).length;
-            return {
-              items,
-              total,
-              page: query.page,
-              pageSize: query.pageSize,
-              totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
-            };
-          }
-          return response as PaginatedResponse<HistoryType>;
+          return {
+            totalIncome: data.totalIncome,
+            totalExpense: data.totalExpense,
+            rangeLabel,
+          };
         },
       );
       setIsLoading(false);
       if (!result || (typeof result === "object" && "errorMessage" in result)) {
-        return {
-          items: [],
-          total: 0,
-          page: query.page,
-          pageSize: query.pageSize,
-          totalPages: 1,
-        };
+        return { totalIncome: 0, totalExpense: 0, rangeLabel };
       }
-      return result as PaginatedResponse<HistoryType>;
+      return result as TransactionsSummaryType;
     },
     [],
   );
@@ -121,7 +138,7 @@ export function useTransactions() {
   return {
     isLoading,
     error,
-    getTransactions,
+    getSummary,
     createTransaction,
   };
 }

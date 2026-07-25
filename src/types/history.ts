@@ -7,7 +7,7 @@ export interface DateFilterType {
   year: number | null;
 }
 
-export interface TypeTransactionsQueryType {
+export interface TransactionsQueryType {
   search: string;
   type: FilterType;
   date: DateFilterType;

@@ -1,15 +1,15 @@
 import { Search, X } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Select } from "@mantine/core";
-import type { DateFilter, FilterType } from "../../types/history";
+import type { DateFilterType, FilterType } from "../../types/history";
 
 type Props = {
   searchTerm: string;
   setSearchTerm: (v: string) => void;
   filterType: FilterType;
   setFilterType: (v: FilterType) => void;
-  date: DateFilter;
-  setDate: (v: DateFilter) => void;
+  date: DateFilterType;
+  setDate: (v: DateFilterType) => void;
   resetFilters: boolean;
   setResetFilters: (reset: boolean) => void;
 };
