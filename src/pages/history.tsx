@@ -82,20 +82,14 @@ export default function History() {
   useEffect(() => {
     let cancelled = false;
     const fetchSummary = async () => {
-      const result = await getSummary({
-        search: debouncedSearch,
-        type: filterType,
-        date,
-        page: 1,
-        pageSize: PAGE_SIZE,
-      });
+      const result = await getSummary(date);
       if (!cancelled) setSummary(result);
     };
     fetchSummary();
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, filterType, date, getSummary]);
+  }, [date, getSummary]);
 
   return (
     <div className="p-8">

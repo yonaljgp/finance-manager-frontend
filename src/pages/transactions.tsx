@@ -14,7 +14,7 @@ import {
 
 const createTransactionsSchema = z.object({
   amount: z
-    .number()
+    .number({ message: "El monto es obligatorio." })
     .min(1, { message: "El monto debe ser mayor que cero." })
     .positive({ message: "El monto debe ser mayor que cero." }),
   description: z
@@ -24,9 +24,21 @@ const createTransactionsSchema = z.object({
       message: "La descripción no puede superar los 100 caracteres.",
     }),
   category: z.string().min(1, { message: "Selecciona una categoría." }),
-  date: z.string().min(1, { message: "Selecciona una fecha." }),
+  // Mantine v9 (DateInput) trabaja con strings ISO (YYYY-MM-DD), por lo
+  // que el schema valida string y se convierte a Date recién en onSubmit.
+  date: z.iso
+    .date({ message: "Selecciona una fecha." })
+    .min(1, { message: "Selecciona una fecha." }),
   note: z.string().max(300).optional(),
 });
+
+/** Formatea un Date como YYYY-MM-DD usando hora local (evita corrimientos por UTC). */
+function toLocalISODate(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 function Transactions() {
   const [transactionType, setTransactionType] =
@@ -38,16 +50,17 @@ function Transactions() {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
   } = useForm<TransactionDataType>({
-    resolver: zodResolver(createTransactionsSchema as never),
+    resolver: zodResolver(createTransactionsSchema),
     mode: "onChange",
     defaultValues: {
       amount: 0,
       description: "",
       category: "",
-      date: new Date().toISOString().split("T")[0],
+      // Mantine v9 espera un string ISO. Usamos la fecha local actual.
+      date: toLocalISODate(new Date()),
       note: "",
     },
   });
@@ -58,8 +71,17 @@ function Transactions() {
   }, [transactionType]);
 
   const onSubmit = (data: TransactionDataType) => {
-    console.log("Nueva transacción:", { ...data, type: transactionType });
-    const payload = { ...data, type: transactionType };
+    // El input entrega un string ISO (YYYY-MM-DD) en hora local; lo
+    // reenviamos tal cual al backend para evitar corrimientos por UTC.
+    const payload = {
+      amount: data.amount,
+      description: data.description,
+      category: data.category,
+      note: data.note,
+      date: data.date,
+      type: transactionType,
+    };
+    console.log("Nueva transacción:", payload);
     createTransaction(payload);
     setShowSuccess(true);
     reset();
@@ -84,6 +106,7 @@ function Transactions() {
             errors={errors}
             handleSubmit={handleSubmit}
             onSubmit={onSubmit}
+            isValid={isValid}
           />
         </div>
       </div>

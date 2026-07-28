@@ -1,7 +1,7 @@
 import { api } from "../services/httpClient";
 import { toAppError, type SetError } from "../utils/apiErrorMapper";
 import { useCallback, useState } from "react";
-import type { TransactionsQueryType, DateFilterType } from "../types/history";
+import type { DateFilterType } from "../types/history";
 
 /** Resumen agregado de ingresos / gastos para un set de filtros. */
 export interface TransactionsSummaryType {
@@ -72,17 +72,14 @@ export function buildRangeLabel(date: DateFilterType): string {
 }
 
 /**
- * Convierte los filtros UI a query params que se envían al backend.
- * Solo se incluyen los campos presentes: `search`, `type`, `year`,
- * `month`, `day`.
+ * Convierte el filtro de fecha UI a query params que se envían al backend.
+ * Si no hay año, se usa el año actual como default.
  */
-function buildSummaryParams(
-  query: TransactionsQueryType,
-): Record<string, string> {
+function buildSummaryParams(date: DateFilterType): Record<string, string> {
   const params: Record<string, string> = {};
-  if (query.date.year != null) params.year = String(query.date.year);
-  if (query.date.month != null) params.month = String(query.date.month);
+  if (date.year != null) params.year = String(date.year);
   else params.year = String(new Date().getFullYear());
+  if (date.month != null) params.month = String(date.month);
   return params;
 }
 
@@ -91,8 +88,8 @@ export function useTransactions() {
   const [error, setError] = useState<string | null>(null);
 
   const getSummary = useCallback(
-    async (query: TransactionsQueryType): Promise<TransactionsSummaryType> => {
-      const rangeLabel = buildRangeLabel(query.date);
+    async (date: DateFilterType): Promise<TransactionsSummaryType> => {
+      const rangeLabel = buildRangeLabel(date);
       setIsLoading(true);
       const result = await runTask(
         setError,
@@ -102,7 +99,7 @@ export function useTransactions() {
             totalIncome: number;
             totalExpense: number;
           }>("/transactions/summary", {
-            params: buildSummaryParams(query),
+            params: buildSummaryParams(date),
           });
           return {
             totalIncome: data.totalIncome,
