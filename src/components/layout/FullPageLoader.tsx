@@ -1,10 +1,23 @@
-import { Loader, Center } from "@mantine/core";
-
 export const FullPageLoader = () => {
   return (
-    <Center mih="100vh" w="100%">
-      <Loader size="lg" color="oklch(0.627 0.265 303.9)" />
-    </Center>
+    <div
+      className="flex h-screen justify-center items-center gap-2"
+      role="status"
+      aria-label="Loading"
+    >
+      <span
+        className="size-3 animate-bounce rounded-full bg-active"
+        aria-hidden="true"
+      ></span>
+      <span
+        className="size-3 animate-bounce rounded-full bg-active [animation-delay:0.2s]"
+        aria-hidden="true"
+      ></span>
+      <span
+        className="size-3 animate-bounce rounded-full bg-active [animation-delay:0.4s]"
+        aria-hidden="true"
+      ></span>
+    </div>
   );
 };
 

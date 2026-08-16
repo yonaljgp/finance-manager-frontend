@@ -19,6 +19,7 @@ export interface TransactionDataType {
   note?: string;
 }
 
+
 export type TransactionType = "ingreso" | "gasto";
 
 /**

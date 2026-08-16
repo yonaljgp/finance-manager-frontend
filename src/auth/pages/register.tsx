@@ -12,7 +12,7 @@ const registerSchema = z.object({
     .string()
     .min(2, { message: "debe tener al menos 2 caracteres." })
     .max(40, { message: "debe tener hasta 40 caracteres." }),
-  email: z.email({ message: "Debe ser un email válido." }),
+  email: z.email({ message: "Debe ser un email válido." }).toLowerCase(),
   password: z
     .string()
     .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
@@ -64,7 +64,6 @@ function Register() {
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     const result = await registerUser(data);
     if (!result.ok) return;
-
     await validateEmail(data.email);
 
     navigate("/auth/validate-email", { state: { email: data.email } });

@@ -9,14 +9,14 @@ import type {
   DateFilterType,
   FilterType,
   PaginatedResponseType,
-  HistoryType,
+  TransactionType,
 } from "../types/history";
 import { useTransactions } from "../hooks/useTransactions";
 import { useTransactionsList } from "../hooks/useTransactionsList";
 
 const PAGE_SIZE = 15;
 
-const EMPTY_PAGE: PaginatedResponseType<HistoryType> = {
+const EMPTY_PAGE: PaginatedResponseType<TransactionType> = {
   items: [],
   total: 0,
   page: 1,
@@ -43,7 +43,7 @@ export default function History() {
   });
   const [page, setPage] = useState(1);
   const [data, setData] =
-    useState<PaginatedResponseType<HistoryType>>(EMPTY_PAGE);
+    useState<PaginatedResponseType<TransactionType>>(EMPTY_PAGE);
   const { getTransactions, isLoading: isListLoading } = useTransactionsList();
   const { getSummary, isLoading: isSummaryLoading } = useTransactions();
 

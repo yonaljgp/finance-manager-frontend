@@ -23,8 +23,9 @@ export interface PaginatedResponseType<T> {
   totalPages: number;
 }
 
-export interface HistoryType {
-  id: number;
+export interface TransactionType {
+  id?: number;
+  id_transactions?: number;
   date: string;
   description: string;
   category: string;
@@ -32,3 +33,14 @@ export interface HistoryType {
   note?: string;
   type: "ingreso" | "gasto";
 }
+
+export type dataStatementType = {
+  transactions: TransactionType[];
+  dateInit?: Date | string;
+  dateEnd?: Date | string;
+};
+
+export type userType = {
+  name: string;
+  email: string;
+};

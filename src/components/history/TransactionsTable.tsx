@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
-import { type HistoryType } from "../../types/history";
+import { type TransactionType } from "../../types/history";
 import { Button, EmptyState } from "@mantine/core";
 import { Search } from "lucide-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -7,7 +7,7 @@ import { useState } from "react";
 import CardTransactions from "./CardTransactions";
 
 type Props = {
-  transactions: HistoryType[];
+  transactions: TransactionType[];
   setResetFilters: (reset: boolean) => void;
 };
 
@@ -49,58 +49,69 @@ export default function TransactionsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-border divide-black/0 dark:divide-white/5">
-            {transactions.map((transaction) => (
-              <tr
-                key={transaction.id}
-                className="bg-card-hover transition-colors"
-                onClick={() => {
-                  setSelectedId(transaction.id);
-                  open();
-                }}
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(transaction.date)}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === "ingreso" ? "bg-income/10" : "bg-expense/10"}`}
-                    >
-                      {transaction.type === "ingreso" ? (
-                        <ArrowUpRight className="w-5 h-5 text-income" />
-                      ) : (
-                        <ArrowDownRight className="w-5 h-5 text-expense" />
-                      )}
+            {transactions.map((transaction) => {
+              const transactionId =
+                transaction.id ?? transaction.id_transactions;
+
+              return (
+                <tr
+                  key={
+                    transactionId ??
+                    `${transaction.date}-${transaction.description}`
+                  }
+                  className="bg-card-hover transition-colors"
+                  onClick={() => {
+                    if (transactionId == null) return;
+                    setSelectedId(transactionId);
+                    open();
+                  }}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(transaction.date)}
                     </div>
-                    <span className="font-medium text-foreground">
-                      {transaction.description}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === "ingreso" ? "bg-income/10" : "bg-expense/10"}`}
+                      >
+                        {transaction.type === "ingreso" ? (
+                          <ArrowUpRight className="w-5 h-5 text-income" />
+                        ) : (
+                          <ArrowDownRight className="w-5 h-5 text-expense" />
+                        )}
+                      </div>
+                      <span className="font-medium text-foreground">
+                        {transaction.description}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground">
+                      {transaction.category}
                     </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                    {transaction.category}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <span
-                    className={`font-semibold ${transaction.type === "ingreso" ? "text-income" : "text-expense"}`}
-                  >
-                    {transaction.type === "gasto" ? "-" : "+"}
-                    {transaction.amount.toFixed(2)} USD
-                  </span>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span
+                      className={`font-semibold ${transaction.type === "ingreso" ? "text-income" : "text-expense"}`}
+                    >
+                      {transaction.type === "gasto" ? "-" : "+"}
+                      {transaction.amount.toFixed(2)} USD
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {(() => {
-        const selected = transactions.find((t) => t.id === selectedId);
+        const selected = transactions.find(
+          (t) => (t.id ?? t.id_transactions) === selectedId,
+        );
         return selected ? (
           <CardTransactions history={selected} opened={opened} close={close} />
         ) : null;

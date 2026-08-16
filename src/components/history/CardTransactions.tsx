@@ -9,14 +9,14 @@ import {
   X,
   ArrowLeftRight,
 } from "lucide-react";
-import { type HistoryType } from "../../types/history";
+import { type TransactionType } from "../../types/history";
 import { formatDate } from "./TransactionsTable";
 import { Modal } from "@mantine/core";
 import { captureTransactions } from "../../templates/captureTransactions";
 import { createCapture } from "../../utils/createCapture";
 
 interface CardTransactionsProps {
-  history: HistoryType;
+  history: TransactionType;
   opened: boolean;
   close: () => void;
 }
@@ -28,6 +28,7 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
   const accentColor = isIncome ? "text-income" : "text-expense";
   const accentBg = isIncome ? "bg-income/10" : "bg-expense/10";
   const transaccionActual = history;
+  const transactionId = history.id ?? history.id_transactions;
 
   const handleDownload = async (id: number) => {
     // Detectamos el tema actual
@@ -91,7 +92,7 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
           <DetailRow
             icon={<ArrowLeftRight className="w-4 h-4" />}
             label="Número de transacción"
-            value={String(history.id).padStart(8, "0")}
+            value={String(transactionId ?? 0).padStart(8, "0")}
           />
           <DetailRow
             icon={<Calendar className="w-4 h-4" />}
@@ -123,7 +124,10 @@ function CardTransactions({ history, opened, close }: CardTransactionsProps) {
         <footer className="flex justify-center gap-8 pt-8 pb-3 border-t border-border">
           <button
             type="button"
-            onClick={() => handleDownload(transaccionActual.id)}
+            onClick={() => {
+              if (transactionId == null) return;
+              void handleDownload(transactionId);
+            }}
             className="button inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
                        text-foreground bg-card border border-border
                        shadow-sm hover:shadow-md bg-card-hover

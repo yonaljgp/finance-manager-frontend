@@ -1,23 +1,37 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import RequireState from "../utils/RequireState";
-import Home from "../pages/home";
-import Transactions from "../pages/transactions";
-import History from "../pages/history";
-import Loans from "../pages/loans";
-import Navbar from "../components/layout/navbar";
-import Footer from "../components/layout/footer";
-import Register from "../auth/pages/register";
-import LoginPage from "../auth/pages/login";
-import NotFound from "../pages/notFound";
-import InputEmail from "../auth/pages/forgotPassword/inputEmail";
-import VerifyCode from "../auth/pages/forgotPassword/verifyCode";
-import NewPassword from "../auth/pages/forgotPassword/newPassword";
+import { lazy, Suspense } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { Navigate } from "react-router-dom";
+const Home = lazy(() => import("../pages/home"));
+const RequireState = lazy(() => import("../utils/RequireState"));
+const Transactions = lazy(() => import("../pages/transactions"));
+const History = lazy(() => import("../pages/history"));
+const Loans = lazy(() => import("../pages/loans"));
+const Navbar = lazy(() => import("../components/layout/navbar"));
+const Footer = lazy(() => import("../components/layout/footer"));
+const Register = lazy(() => import("../auth/pages/register"));
+const LoginPage = lazy(() => import("../auth/pages/login"));
+const NotFound = lazy(() => import("../pages/notFound"));
+const InputEmail = lazy(
+  () => import("../auth/pages/forgotPassword/inputEmail"),
+);
+const VerifyCode = lazy(
+  () => import("../auth/pages/forgotPassword/verifyCode"),
+);
+const NewPassword = lazy(
+  () => import("../auth/pages/forgotPassword/newPassword"),
+);
 import FullPageLoader from "../components/layout/FullPageLoader";
+import { Toaster } from "sonner";
 
 const ProtectedRoutes = () => {
   const { isAuth, isBootstrapping } = useAuth();
+
   if (isBootstrapping) {
     return <FullPageLoader />;
   }
@@ -46,62 +60,82 @@ function RoutesPages() {
       <BrowserRouter>
         <div className="flex min-h-screen flex-col">
           <main className="flex-1 flex flex-col">
-            <Routes>
-              {/* Rutas Protegidas */}
-              <Route path="/" element={<ProtectedRoutes />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/crear-transaccion" element={<Transactions />} />
-                <Route path="/historial" element={<History />} />
-                <Route path="/prestamos" element={<Loans />} />
-              </Route>
-              {/* Rutas Auth */}
-              <Route element={<AuthRoutes />}>
-                <Route path="/auth/register" element={<Register />} />
-                <Route path="/auth/login" element={<LoginPage />} />
-                <Route path="/auth/forgot-password" element={<InputEmail />} />
-                <Route
-                  path="/auth/verify-code"
-                  element={
-                    <RequireState
-                      keys={["email"]}
-                      redirectTo="/auth/forgot-password"
-                    >
-                      <VerifyCode
-                        title="Recuperar Acceso"
-                        kind="password"
-                        navigateTo="/auth/reset-password"
-                        fetchTo="/auth/password/forgot"
-                      />
-                    </RequireState>
-                  }
-                />
-                <Route
-                  path="/auth/reset-password"
-                  element={
-                    <RequireState
-                      keys={["email", "code"]}
-                      redirectTo="/auth/forgot-password"
-                    >
-                      <NewPassword />
-                    </RequireState>
-                  }
-                />
-                <Route
-                  path="/auth/validate-email"
-                  element={
-                    <RequireState keys={["email"]} redirectTo="/auth/register">
-                      <VerifyCode
-                        title="Valida tu Cuenta"
-                        kind="email"
-                        navigateTo="/auth/login"
-                        fetchTo="/auth/email/send-code"
-                      />
-                    </RequireState>
-                  }
-                />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<FullPageLoader />}>
+              <Toaster
+                richColors
+                position="top-right"
+                toastOptions={{
+                  style: {
+                    background: "var(--card)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--border)",
+                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
+                  },
+                }}
+              />
+              <Routes>
+                {/* Rutas Protegidas */}
+                <Route path="/" element={<ProtectedRoutes />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/crear-transaccion" element={<Transactions />} />
+                  <Route path="/historial" element={<History />} />
+                  <Route path="/prestamos" element={<Loans />} />
+                </Route>
+                {/* Rutas Auth */}
+                <Route element={<AuthRoutes />}>
+                  <Route path="/auth/register" element={<Register />} />
+                  <Route path="/auth/login" element={<LoginPage />} />
+                  <Route
+                    path="/auth/forgot-password"
+                    element={<InputEmail />}
+                  />
+                  <Route
+                    path="/auth/verify-code"
+                    element={
+                      <RequireState
+                        keys={["email"]}
+                        redirectTo="/auth/forgot-password"
+                      >
+                        <VerifyCode
+                          title="Recuperar Acceso"
+                          kind="password"
+                          navigateTo="/auth/reset-password"
+                          fetchTo="/auth/password/forgot"
+                        />
+                      </RequireState>
+                    }
+                  />
+                  <Route
+                    path="/auth/reset-password"
+                    element={
+                      <RequireState
+                        keys={["email", "code"]}
+                        redirectTo="/auth/forgot-password"
+                      >
+                        <NewPassword />
+                      </RequireState>
+                    }
+                  />
+                  <Route
+                    path="/auth/validate-email"
+                    element={
+                      <RequireState
+                        keys={["email"]}
+                        redirectTo="/auth/register"
+                      >
+                        <VerifyCode
+                          title="Valida tu Cuenta"
+                          kind="email"
+                          navigateTo="/auth/login"
+                          fetchTo="/auth/email/send-code"
+                        />
+                      </RequireState>
+                    }
+                  />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </main>
           <Footer />
         </div>

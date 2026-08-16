@@ -13,7 +13,6 @@ import { useState, useEffect } from "react";
 import { useClickOutside } from "@mantine/hooks";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { formatDisplayName } from "../../utils/nameFormatter";
 
 interface NavItem {
   to: string;
@@ -31,10 +30,9 @@ const NAV_ITEMS: NavItem[] = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useClickOutside(() => setIsOpen(false));
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useClickOutside(() => setIsUserMenuOpen(false));
-  const displayName = formatDisplayName(user?.name) ?? "Usuario";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,8 +74,7 @@ export default function Navbar() {
             className="button flex items-center gap-2 px-4 py-2 rounded-lg text-foreground hover:bg-accent"
             aria-label="Abrir menú de usuario"
           >
-            <UserCircle className="w-5 h-5" />
-            <span className="wrap-break-word">{displayName}</span>
+            <UserCircle className="w-6 h-6" />
           </button>
           {isUserMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-30">
@@ -112,12 +109,7 @@ export default function Navbar() {
               isOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
-            <div className="flex items-center h-20 justify-between gap-3 border-b border-border px-4 py-3">
-              <div className="min-w-0 ">
-                <h2 className="text-md font-semibold wrap-break-words truncate">
-                  {displayName}
-                </h2>
-              </div>
+            <div className="flex items-center h-20 justify-end gap-3 border-b border-border px-4 py-3">
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
@@ -150,14 +142,6 @@ export default function Navbar() {
                 ))}
               </ul>
             </nav>
-            <div className="p-4 border-t border-border">
-              <div className="bg-accent rounded-lg p-4 transition-colors duration-300">
-                <p className="text-xs text-muted-foreground">Balance Total</p>
-                <p className="text-2xl font-semibold text-foreground mt-1">
-                  $45,320.50
-                </p>
-              </div>
-            </div>
             <button
               type="button"
               onClick={() => logout()}

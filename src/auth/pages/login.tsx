@@ -24,7 +24,8 @@ function LoginPage() {
 
   const [viewPassword, setViewPassword] = useState(false);
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const { email, password } = data;
+    const { password } = data;
+    const email = data.email.toLowerCase();
     const result = await login(email, password);
 
     if (result.ok) {
