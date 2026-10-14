@@ -363,3 +363,14 @@ body {
   cursor: not-allowed;
   filter: grayscale(0.4);
 }
+
+/* 8. <select> nativo */
+select option {
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+/* Quita la flecha nativa del <select> (usamos un SVG propio). */
+select::-ms-expand {
+  display: none;
+}

@@ -24,7 +24,7 @@ const EMPTY_PAGE: PaginatedResponseType<TransactionType> = {
   totalPages: 1,
 };
 
-export function meta() {
+export function Meta() {
   return [
     { title: "Contacto - Mi Sitio" },
     { name: "description", content: "Página de contacto para soporte." },
@@ -36,10 +36,10 @@ export default function History() {
   const [resetFilters, setResetFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
-  const [date, setDate] = useState<DateFilterType>({
+  const [filterDate, setFilterDate] = useState<DateFilterType>({
     day: null,
     month: null,
-    year: null,
+    year: new Date().getFullYear(),
   });
   const [page, setPage] = useState(1);
   const [data, setData] =
@@ -58,7 +58,7 @@ export default function History() {
   // Reset a página 1 cuando cambian los filtros (no cuando cambia `page`).
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, filterType, date]);
+  }, [debouncedSearch, filterType, filterDate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,7 +66,7 @@ export default function History() {
       const result = await getTransactions({
         search: debouncedSearch,
         type: filterType,
-        date,
+        date: filterDate,
         page,
         pageSize: PAGE_SIZE,
       });
@@ -76,36 +76,32 @@ export default function History() {
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, filterType, date, page, getTransactions]);
+  }, [debouncedSearch, filterType, filterDate, page, getTransactions]);
 
   // El resumen se recalcula con los filtros, **no** con la paginación.
   useEffect(() => {
     let cancelled = false;
     const fetchSummary = async () => {
-      const result = await getSummary(date);
+      const result = await getSummary(filterDate);
       if (!cancelled) setSummary(result);
     };
     fetchSummary();
     return () => {
       cancelled = true;
     };
-  }, [date, getSummary]);
+  }, [filterDate, getSummary]);
 
   return (
     <div className="p-8">
       <Header />
-      <SummaryCards
-        totalIncome={summary.totalIncome}
-        totalExpense={summary.totalExpense}
-        rangeLabel={summary.rangeLabel}
-      />
+      <SummaryCards summary={summary} />
       <Filters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         filterType={filterType}
         setFilterType={setFilterType}
-        date={date}
-        setDate={setDate}
+        filterDate={filterDate}
+        setFilterDate={setFilterDate}
         resetFilters={resetFilters}
         setResetFilters={setResetFilters}
       />

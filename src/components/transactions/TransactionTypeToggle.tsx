@@ -1,6 +1,5 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-
-type TransactionType = "ingreso" | "gasto";
+import type { TransactionType } from "../../types/transactions";
 
 interface TransactionTypeToggleProps {
   transactionType: TransactionType;

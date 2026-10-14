@@ -7,7 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-const Home = lazy(() => import("../pages/home"));
+const Dashboard = lazy(() => import("../pages/dashboard"));
 const RequireState = lazy(() => import("../utils/RequireState"));
 const Transactions = lazy(() => import("../pages/transactions"));
 const History = lazy(() => import("../pages/history"));
@@ -76,7 +76,7 @@ function RoutesPages() {
               <Routes>
                 {/* Rutas Protegidas */}
                 <Route path="/" element={<ProtectedRoutes />}>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<Dashboard />} />
                   <Route path="/crear-transaccion" element={<Transactions />} />
                   <Route path="/historial" element={<History />} />
                   <Route path="/prestamos" element={<Loans />} />

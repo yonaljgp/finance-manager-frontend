@@ -1,21 +1,25 @@
 import { useMemo } from "react";
 import { Calendar, DollarSign, FileText, Tag } from "lucide-react";
-import type { FieldErrors, UseFormRegister, Control } from "react-hook-form";
+import type {
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormRegister,
+  Control,
+} from "react-hook-form";
 import { DateInput } from "@mantine/dates";
 import { Controller } from "react-hook-form";
-import type { TransactionDataType } from "../../hooks/useTransactions";
-type TransactionType = "ingreso" | "gasto";
+import type {
+  TransactionFormDataType,
+  TransactionType,
+} from "../../types/transactions";
 
 interface TransactionFormProps {
   transactionType: TransactionType;
-  register: UseFormRegister<TransactionDataType>;
-  control: Control<TransactionDataType>;
-  errors: FieldErrors<TransactionDataType>;
-  handleSubmit: (
-    callback: (data: TransactionDataType) => void,
-  ) => (event?: React.FormEvent) => Promise<void>;
-  onSubmit: (data: TransactionDataType) => void;
-  isValid: boolean;
+  register: UseFormRegister<TransactionFormDataType>;
+  control: Control<TransactionFormDataType>;
+  errors: FieldErrors<TransactionFormDataType>;
+  handleSubmit: UseFormHandleSubmit<TransactionFormDataType>;
+  onSubmit: (data: TransactionFormDataType) => void;
 }
 
 const categories: Record<TransactionType, string[]> = {
@@ -38,7 +42,6 @@ export default function TransactionForm({
   errors,
   handleSubmit,
   onSubmit,
-  isValid,
 }: TransactionFormProps) {
   const categoryOptions = useMemo(
     () => categories[transactionType],
@@ -146,7 +149,7 @@ export default function TransactionForm({
                 maxDate={new Date()}
                 valueFormat="DD/MM/YYYY"
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(date) => field.onChange(date)}
                 className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
                 placeholder="DD/MM/YYYY"
                 classNames={{
@@ -193,8 +196,7 @@ export default function TransactionForm({
 
       <button
         type="submit"
-        disabled={!isValid}
-        className={`w-full py-4 rounded-lg font-medium transition-colors disabled:opacity-50 ${
+        className={`w-full py-4 rounded-lg font-medium transition-colors ${
           transactionType === "ingreso"
             ? "bg-income hover:brightness-90 text-income-foreground"
             : "bg-expense hover:brightness-90 text-expense-foreground"

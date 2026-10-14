@@ -2,25 +2,12 @@ import { api } from "../services/httpClient";
 import { toAppError, type SetError } from "../utils/apiErrorMapper";
 import { useCallback, useState } from "react";
 import type { DateFilterType } from "../types/history";
+import type {
+  TransactionDataType,
+  TransactionsSummaryType,
+} from "../types/transactions";
 
 /** Resumen agregado de ingresos / gastos para un set de filtros. */
-export interface TransactionsSummaryType {
-  totalIncome: number;
-  totalExpense: number;
-  /** Rango efectivo que se está reportando (texto legible). */
-  rangeLabel: string;
-}
-
-export interface TransactionDataType {
-  amount: number;
-  description: string;
-  category: string;
-  date: string;
-  note?: string;
-}
-
-
-export type TransactionType = "ingreso" | "gasto";
 
 /**
  * Helper reusable: ejecuta una tarea de red envolviendo el manejo de
@@ -73,14 +60,15 @@ export function buildRangeLabel(date: DateFilterType): string {
 }
 
 /**
- * Convierte el filtro de fecha UI a query params que se envían al backend.
- * Si no hay año, se usa el año actual como default.
+ * Convierte los filtros UI a query params que se envían al backend.
+ * Solo se incluyen los campos presentes: `search`, `type`, `year`,
+ * `month`, `day`.
  */
-function buildSummaryParams(date: DateFilterType): Record<string, string> {
+function buildSummaryParams(query: DateFilterType): Record<string, string> {
   const params: Record<string, string> = {};
-  if (date.year != null) params.year = String(date.year);
+  if (query.year != null) params.year = String(query.year);
   else params.year = String(new Date().getFullYear());
-  if (date.month != null) params.month = String(date.month);
+  if (query.month != null) params.month = String(query.month);
   return params;
 }
 
@@ -89,8 +77,8 @@ export function useTransactions() {
   const [error, setError] = useState<string | null>(null);
 
   const getSummary = useCallback(
-    async (date: DateFilterType): Promise<TransactionsSummaryType> => {
-      const rangeLabel = buildRangeLabel(date);
+    async (query: DateFilterType): Promise<TransactionsSummaryType> => {
+      const rangeLabel = buildRangeLabel(query);
       setIsLoading(true);
       const result = await runTask(
         setError,
@@ -100,7 +88,7 @@ export function useTransactions() {
             totalIncome: number;
             totalExpense: number;
           }>("/transactions/summary", {
-            params: buildSummaryParams(date),
+            params: buildSummaryParams(query),
           });
           return {
             totalIncome: data.totalIncome,

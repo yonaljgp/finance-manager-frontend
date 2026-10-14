@@ -4,9 +4,8 @@ import { useCallback, useState } from "react";
 import type {
   TransactionsQueryType,
   PaginatedResponseType,
-  HistoryType,
 } from "../types/history";
-
+import type { TransactionType } from "../types/history";
 /**
  * Helper reusable: ejecuta una tarea de red envolviendo el manejo de
  * loading / error.
@@ -53,7 +52,7 @@ export function useTransactionsList() {
   const getTransactions = useCallback(
     async (
       query: TransactionsQueryType,
-    ): Promise<PaginatedResponseType<HistoryType>> => {
+    ): Promise<PaginatedResponseType<TransactionType>> => {
       setIsLoading(true);
       const result = await runTask(
         setError,
@@ -64,11 +63,11 @@ export function useTransactionsList() {
           });
           if (Array.isArray(response)) {
             const start = (query.page - 1) * query.pageSize;
-            const items = (response as HistoryType[]).slice(
+            const items = (response as TransactionType[]).slice(
               start,
               start + query.pageSize,
             );
-            const total = (response as HistoryType[]).length;
+            const total = (response as TransactionType[]).length;
             return {
               items,
               total,
@@ -77,7 +76,7 @@ export function useTransactionsList() {
               totalPages: Math.max(1, Math.ceil(total / query.pageSize)),
             };
           }
-          return response as PaginatedResponseType<HistoryType>;
+          return response as PaginatedResponseType<TransactionType>;
         },
       );
       setIsLoading(false);
@@ -90,7 +89,7 @@ export function useTransactionsList() {
           totalPages: 1,
         };
       }
-      return result as PaginatedResponseType<HistoryType>;
+      return result as PaginatedResponseType<TransactionType>;
     },
     [],
   );

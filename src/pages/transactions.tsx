@@ -6,11 +6,10 @@ import TransactionSuccessAlert from "../components/transactions/TransactionSucce
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  useTransactions,
-  type TransactionDataType,
-  type TransactionType,
-} from "../hooks/useTransactions";
+import { useTransactions } from "../hooks/useTransactions";
+import type {
+  TransactionType,
+} from "../types/transactions";
 
 const createTransactionsSchema = z.object({
   amount: z
@@ -50,9 +49,9 @@ function Transactions() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
     reset,
-  } = useForm<TransactionDataType>({
+  } = useForm<z.infer<typeof createTransactionsSchema>>({
     resolver: zodResolver(createTransactionsSchema),
     mode: "onChange",
     defaultValues: {
@@ -70,7 +69,7 @@ function Transactions() {
       transactionType === "ingreso" ? "Registrar ingreso" : "Registrar gasto";
   }, [transactionType]);
 
-  const onSubmit = (data: TransactionDataType) => {
+  const onSubmit = (data: z.infer<typeof createTransactionsSchema>) => {
     // El input entrega un string ISO (YYYY-MM-DD) en hora local; lo
     // reenviamos tal cual al backend para evitar corrimientos por UTC.
     const payload = {
@@ -106,7 +105,6 @@ function Transactions() {
             errors={errors}
             handleSubmit={handleSubmit}
             onSubmit={onSubmit}
-            isValid={isValid}
           />
         </div>
       </div>

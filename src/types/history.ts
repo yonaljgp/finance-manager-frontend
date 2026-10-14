@@ -1,3 +1,5 @@
+import type { TransactionDataType } from "./transactions";
+
 export type FilterType = "all" | "ingreso" | "gasto";
 
 /** Filtros de fecha separados: cada parte es independiente y opcional. */
@@ -23,24 +25,13 @@ export interface PaginatedResponseType<T> {
   totalPages: number;
 }
 
-export interface TransactionType {
-  id?: number;
-  id_transactions?: number;
-  date: string;
-  description: string;
-  category: string;
-  amount: number;
-  note?: string;
-  type: "ingreso" | "gasto";
-}
-
-export type dataStatementType = {
-  transactions: TransactionType[];
+export type DataStatementType = {
+  transactions: TransactionDataType[];
   dateInit?: Date | string;
   dateEnd?: Date | string;
 };
 
-export type userType = {
+export type UserType = {
   name: string;
   email: string;
 };
