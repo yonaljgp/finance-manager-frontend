@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../services/httpClient";
 import { useTransactions } from "../hooks/useTransactions";
 import type { DateFilterType } from "../types/history";
-import type { TransactionType } from "../types/history";
+import type { TransactionDataType } from "../types/transactions";
 import Header from "../components/dashboard/Header";
 import SummaryCards from "../components/history/SummaryCards";
 import DashboardStatement from "../components/dashboard/DashboardStatement";
@@ -14,7 +14,7 @@ export default function Dashboard() {
     month: null,
     year: new Date().getFullYear(),
   });
-  const [transactions, setTransactions] = useState<TransactionType[]>([]);
+  const [transactions, setTransactions] = useState<TransactionDataType[]>([]);
   const [resetFilters, setResetFilters] = useState(false);
   const [summary, setSummary] = useState<{
     totalIncome: number;
@@ -27,13 +27,16 @@ export default function Dashboard() {
     if (!filterDate) return;
     let cancelled = false;
     const fetchTransactions = async () => {
-      const trasactions: TransactionType[] = await api.get("/transactions", {
-        params: {
-          year: filterDate.year,
-          month: filterDate.month ?? null,
-          day: filterDate.day ?? null,
+      const trasactions: TransactionDataType[] = await api.get(
+        "/transactions",
+        {
+          params: {
+            year: filterDate.year,
+            month: filterDate.month ?? null,
+            day: filterDate.day ?? null,
+          },
         },
-      });
+      );
       if (!cancelled) setTransactions(trasactions);
     };
 
@@ -57,10 +60,13 @@ export default function Dashboard() {
       />
       <SummaryCards summary={summary} />
       <DashboardStatement Transactions={transactions} filterDate={filterDate} />
-      <TransactionsTable
-        transactions={transactions}
-        setResetFilters={setResetFilters}
-      />
+      <div className="bg-card border border-border transition-colors rounded-xl p-6 my-8 gap-10">
+        <h2 className="text-xl font-semibold pb-7">Transacciones Recientes</h2>
+        <TransactionsTable
+          transactions={transactions.slice(0, 5)}
+          setResetFilters={setResetFilters}
+        />
+      </div>
     </div>
   );
 }

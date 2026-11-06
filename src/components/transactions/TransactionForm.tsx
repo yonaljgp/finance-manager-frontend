@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import { Calendar, DollarSign, FileText, Tag } from "lucide-react";
+import { NumberInput, Select, Textarea, TextInput } from "@mantine/core";
 import type {
   FieldErrors,
   UseFormHandleSubmit,
@@ -35,6 +34,12 @@ const categories: Record<TransactionType, string[]> = {
   ],
 };
 
+const fieldClassNames = {
+  label: "!text-[var(--muted-foreground)]",
+  input:
+    "!border-[var(--border)] !bg-[var(--input-background)] !text-[var(--foreground)] placeholder:!text-[var(--muted-foreground)] focus:!ring-2 focus:!ring-[var(--input-focus)] focus:!border-[var(--input-focus)]",
+};
+
 export default function TransactionForm({
   transactionType,
   register,
@@ -43,160 +48,89 @@ export default function TransactionForm({
   handleSubmit,
   onSubmit,
 }: TransactionFormProps) {
-  const categoryOptions = useMemo(
-    () => categories[transactionType],
-    [transactionType],
-  );
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
-        <label
-          htmlFor="transaction-amount"
-          className="text-sm text-muted-foreground mb-2 block"
-        >
-          Monto
-        </label>
-        <div className="relative">
-          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            id="transaction-amount"
-            type="number"
-            step="0.01"
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-10">
+      <Controller
+        name="amount"
+        control={control}
+        render={({ field }) => (
+          <NumberInput
+            {...field}
+            label="Monto"
             placeholder="0.00"
-            {...register("amount", { valueAsNumber: true })}
-            className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
+            decimalScale={2}
+            error={errors.amount?.message}
+            classNames={fieldClassNames}
+            onChange={(value) => {
+              field.onChange(
+                typeof value === "number"
+                  ? value
+                  : value === ""
+                    ? Number.NaN
+                    : Number(value),
+              );
+            }}
           />
-        </div>
-        {errors.amount && (
-          <p className="mt-2 text-sm text-destructive">
-            {errors.amount.message}
-          </p>
         )}
-      </div>
+      />
 
-      <div>
-        <label
-          htmlFor="transaction-description"
-          className="text-sm text-muted-foreground mb-2 block"
-        >
-          Descripción
-        </label>
-        <div className="relative">
-          <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            id="transaction-description"
-            type="text"
-            placeholder="Ej: Compra en supermercado"
-            {...register("description")}
-            className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground placeholder:text-muted-foreground"
+      <TextInput
+        label="Descripción"
+        placeholder="Ej: Compra en supermercado"
+        {...register("description")}
+        error={errors.description?.message}
+        classNames={fieldClassNames}
+      />
+
+      <Controller
+        name="category"
+        control={control}
+        render={({ field }) => (
+          <Select
+            {...field}
+            label="Categoría"
+            placeholder="Selecciona una categoría"
+            data={categories[transactionType]}
+            error={errors.category?.message}
+            classNames={{
+              ...fieldClassNames,
+              dropdown: "!border-[var(--border)] !bg-[var(--card)]",
+              option:
+                "!text-[var(--foreground)] data-[hovered]:!bg-[var(--accent)] data-[checked]:!bg-[var(--input-focus)] data-[checked]:!text-[var(--foreground)]",
+            }}
           />
-        </div>
-        {errors.description && (
-          <p className="mt-2 text-sm text-destructive">
-            {errors.description.message}
-          </p>
         )}
-      </div>
+      />
 
-      <div>
-        <label
-          htmlFor="transaction-category"
-          className="text-sm text-muted-foreground mb-2 block"
-        >
-          Categoría
-        </label>
-        <div className="relative">
-          <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <select
-            id="transaction-category"
-            {...register("category")}
-            className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none transition-colors text-foreground"
-          >
-            <option value="" className="bg-card">
-              Selecciona una categoría
-            </option>
-            {categoryOptions.map((category: string) => (
-              <option key={category} value={category} className="bg-card">
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-        {errors.category && (
-          <p className="mt-2 text-sm text-destructive">
-            {errors.category.message}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="transaction-date"
-          className="text-sm text-muted-foreground mb-2 block"
-        >
-          Fecha
-        </label>
-        <div className="relative">
-          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-          <Controller
-            name="date"
-            control={control}
-            render={({ field }) => (
-              <DateInput
-                id="transaction-date"
-                clearable
-                maxDate={new Date()}
-                valueFormat="DD/MM/YYYY"
-                value={field.value}
-                onChange={(date) => field.onChange(date)}
-                className="w-full pl-12 pr-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors text-foreground"
-                placeholder="DD/MM/YYYY"
-                classNames={{
-                  input:
-                    "!border-0 !bg-transparent !focus:ring-0 !outline-none text-foreground placeholder:text-muted-foreground p-0",
-                  root: "m-0 p-0",
-                  wrapper: "m-0 p-0",
-                }}
-                styles={{
-                  input: {
-                    border: "none !important",
-                    background: "transparent !important",
-                    outline: "none !important",
-                    boxShadow: "none !important",
-                  },
-                  wrapper: {
-                    border: "none !important",
-                  },
-                }}
-              />
-            )}
+      <Controller
+        name="date"
+        control={control}
+        render={({ field }) => (
+          <DateInput
+            {...field}
+            label="Fecha"
+            maxDate={new Date()}
+            valueFormat="DD/MM/YYYY"
+            placeholder="DD/MM/YYYY"
+            error={errors.date?.message}
+            classNames={fieldClassNames}
+            onChange={(date) => field.onChange(date ?? "")}
           />
-        </div>
-        {errors.date && (
-          <p className="mt-2 text-sm text-destructive">{errors.date.message}</p>
         )}
-      </div>
+      />
 
-      <div>
-        <label
-          htmlFor="transaction-notes"
-          className="text-sm text-muted-foreground mb-2 block"
-        >
-          Notas (opcional)
-        </label>
-        <textarea
-          id="transaction-notes"
-          placeholder="Agrega notas adicionales..."
-          rows={4}
-          {...register("note")}
-          className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-colors text-foreground placeholder:text-muted-foreground"
-        />
-      </div>
+      <Textarea
+        label="Notas (opcional)"
+        placeholder="Agrega notas adicionales..."
+        rows={4}
+        resize="none"
+        classNames={fieldClassNames}
+        {...register("note")}
+      />
 
       <button
         type="submit"
-        className={`w-full py-4 rounded-lg font-medium transition-colors ${
+        className={`w-full py-4 rounded-lg font-bold transition-colors ${
           transactionType === "ingreso"
             ? "bg-income hover:brightness-90 text-income-foreground"
             : "bg-expense hover:brightness-90 text-expense-foreground"

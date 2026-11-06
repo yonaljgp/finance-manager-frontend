@@ -1,9 +1,10 @@
-import { AreaChart, RadarChart, BarChart } from "@mantine/charts";
-import type { TransactionType, DateFilterType } from "../../types/history";
+import { AreaChart, BarChart } from "@mantine/charts";
+import type { DateFilterType } from "../../types/history";
+import type { TransactionDataType } from "../../types/transactions";
 import { MONTHS } from "../../utils/buildDateSelect";
 
 interface Props {
-  Transactions: TransactionType[];
+  Transactions: TransactionDataType[];
   filterDate: DateFilterType;
 }
 

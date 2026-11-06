@@ -29,18 +29,18 @@ async function runTask<T>(
 }
 
 const MONTH_NAMES = [
-  "enero",
-  "febrero",
-  "marzo",
-  "abril",
-  "mayo",
-  "junio",
-  "julio",
-  "agosto",
-  "septiembre",
-  "octubre",
-  "noviembre",
-  "diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ];
 
 /**
@@ -113,7 +113,6 @@ export function useTransactions() {
       "Error al crear la transacción",
       async () => {
         const response = await api.post("/transactions", transactionData);
-        console.log("Transacción creada:", response);
         return response;
       },
     );

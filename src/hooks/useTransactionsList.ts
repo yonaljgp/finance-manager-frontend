@@ -5,7 +5,7 @@ import type {
   TransactionsQueryType,
   PaginatedResponseType,
 } from "../types/history";
-import type { TransactionType } from "../types/history";
+import type { TransactionType } from "../types/transactions";
 /**
  * Helper reusable: ejecuta una tarea de red envolviendo el manejo de
  * loading / error.

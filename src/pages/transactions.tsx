@@ -7,37 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useTransactions } from "../hooks/useTransactions";
-import type {
-  TransactionType,
-} from "../types/transactions";
-
-const createTransactionsSchema = z.object({
-  amount: z
-    .number({ message: "El monto es obligatorio." })
-    .min(1, { message: "El monto debe ser mayor que cero." })
-    .positive({ message: "El monto debe ser mayor que cero." }),
-  description: z
-    .string()
-    .min(3, { message: "La descripción es obligatoria." })
-    .max(100, {
-      message: "La descripción no puede superar los 100 caracteres.",
-    }),
-  category: z.string().min(1, { message: "Selecciona una categoría." }),
-  // Mantine v9 (DateInput) trabaja con strings ISO (YYYY-MM-DD), por lo
-  // que el schema valida string y se convierte a Date recién en onSubmit.
-  date: z.iso
-    .date({ message: "Selecciona una fecha." })
-    .min(1, { message: "Selecciona una fecha." }),
-  note: z.string().max(300).optional(),
-});
-
-/** Formatea un Date como YYYY-MM-DD usando hora local (evita corrimientos por UTC). */
-function toLocalISODate(date: Date): string {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
+import { type TransactionType } from "../types/transactions";
+import useToLocalISODate from "../hooks/useToLocalISODate";
+import { createTransactionsSchema } from "../types/transactions";
 
 function Transactions() {
   const [transactionType, setTransactionType] =
@@ -58,8 +30,7 @@ function Transactions() {
       amount: 0,
       description: "",
       category: "",
-      // Mantine v9 espera un string ISO. Usamos la fecha local actual.
-      date: toLocalISODate(new Date()),
+      date: useToLocalISODate(new Date()),
       note: "",
     },
   });
@@ -80,7 +51,6 @@ function Transactions() {
       date: data.date,
       type: transactionType,
     };
-    console.log("Nueva transacción:", payload);
     createTransaction(payload);
     setShowSuccess(true);
     reset();
