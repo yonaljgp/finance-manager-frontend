@@ -1,4 +1,4 @@
-import { Search, X, Calendar } from "lucide-react";
+import { Search, X, Calendar, ChevronDown } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Select } from "@mantine/core";
 import type { DateFilterType, FilterType } from "../../types/history";
@@ -20,31 +20,33 @@ type Props = {
 };
 
 const selectStyles = {
+  root: {
+    width: "fit-content",
+  },
   input: {
     backgroundColor: "var(--input-background)",
     borderColor: "var(--border)",
     color: "var(--foreground)",
-    padding: "0.375rem 0.75rem",
-    paddingRight: "2.25rem",
     borderRadius: "0.5rem",
     fieldSizing: "content" as const,
-    minWidth: "4rem",
-    width: "auto",
-    fontSize: "0.8125rem",
+    minWidth: 0,
+    width: "fit-content",
+    fontSize: "0.75rem",
+    padding: "0.375rem 2.25rem 0.375rem 0.75rem",
   },
   dropdown: {
     backgroundColor: "var(--card)",
     borderColor: "var(--border)",
-    color: "var(--foreground)",
+    borderRadius: "0.5rem",
+    width: "max-content",
+    minWidth: "max-content",
+    maxWidth: "none",
   },
-  option: { color: "var(--foreground)" },
-  clear: {
-    backgroundColor: "var(--input-background)",
-    color: "var(--muted-foreground)",
-    borderRadius: "0.25rem",
-    width: "1.25rem",
-    height: "1.25rem",
-    insetInlineEnd: "0.5rem",
+  option: {
+    color: "var(--foreground)",
+    whiteSpace: "nowrap" as const,
+    width: "max-content",
+    overflow: "visible",
   },
 };
 
@@ -167,6 +169,7 @@ export default function Filters({
               }
               clearable
               variant="unstyled"
+              rightSection={<ChevronDown size={16} />}
               clearSectionMode="clear"
               comboboxProps={{ withinPortal: false }}
               styles={selectStyles}
@@ -181,6 +184,7 @@ export default function Filters({
                 setFilterDate({ ...filterDate, month: v ? Number(v) : null })
               }
               clearable
+              rightSection={<ChevronDown size={16} />}
               clearSectionMode="clear"
               variant="unstyled"
               comboboxProps={{ withinPortal: false }}
@@ -200,6 +204,7 @@ export default function Filters({
                 })
               }
               clearable={false}
+              rightSection={<ChevronDown size={16} />}
               comboboxProps={{ withinPortal: false }}
               styles={selectStyles}
               size="sm"

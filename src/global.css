@@ -52,6 +52,7 @@
   --border: rgba(0, 0, 0, 0.1); /* Bordes de inputs, cards, separadores */
   --input: transparent; /* Fondo interno de inputs */
   --input-background: #f3f3f5; /* Fondo visible de inputs */
+  --input-focus: rgba(113, 113, 130, 0.35); /* Foco sutil para inputs */
   --switch-background: #cbced4; /* Track del switch toggle */
   --muted-hover: #e0e0e5; /* Fondo de superficies muted en hover — un escalón más fuerte */
 
@@ -114,6 +115,7 @@
   --border: rgba(255, 255, 255, 0.08);
   --input: transparent;
   --input-background: #1f1f2e;
+  --input-focus: rgba(161, 161, 170, 0.35);
   --switch-background: #cbced4;
   --muted-hover: #2a2a3a; /* Fondo de superficies muted en hover — un escalón más fuerte */
 
@@ -352,8 +354,8 @@ body {
   transition: all 0.2s ease-in-out;
   user-select: none;
 }
-.button:hover {
-  filter: brightness(1.1);
+.button:hover:not(:disabled) {
+  filter: brightness(0.9);
 }
 .button:active:not(:disabled) {
   transform: scale(0.97);

@@ -1,4 +1,6 @@
 import { useMemo, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+import { Select } from "@mantine/core";
 import { useAuth } from "../../hooks/useAuth";
 import { MONTHS, buildYearOptions } from "../../utils/buildDateSelect";
 import type { DateFilterType } from "../../types/history";
@@ -9,8 +11,36 @@ type HeaderProps = {
   resetFilters: boolean;
 };
 
-const baseSelectClass =
-  "appearance-none cursor-pointer bg-[var(--input-background)] border border-[var(--border)] text-[var(--foreground)] rounded-lg py-[0.35rem] pl-2 pr-7 text-xs font-normal focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-[var(--accent)] transition-colors";
+const selectStyles = {
+  root: {
+    width: "fit-content",
+  },
+  input: {
+    backgroundColor: "var(--input-background)",
+    borderColor: "var(--border)",
+    color: "var(--foreground)",
+    borderRadius: "0.5rem",
+    fieldSizing: "content" as const,
+    minWidth: 0,
+    width: "fit-content",
+    fontSize: "0.75rem",
+    padding: "0.375rem 2.25rem 0.375rem 0.75rem",
+  },
+  dropdown: {
+    backgroundColor: "var(--card)",
+    borderColor: "var(--border)",
+    borderRadius: "0.5rem",
+    width: "max-content",
+    minWidth: "max-content",
+    maxWidth: "none",
+  },
+  option: {
+    color: "var(--foreground)",
+    whiteSpace: "nowrap" as const,
+    width: "max-content",
+    overflow: "visible",
+  },
+};
 
 function Header({ setFilterDate, filterDate, resetFilters }: HeaderProps) {
   const { user } = useAuth();
@@ -26,76 +56,57 @@ function Header({ setFilterDate, filterDate, resetFilters }: HeaderProps) {
   }, [resetFilters]);
 
   return (
-    <div className="w-full flex flex-col gap-5 p-4 pb-10">
+    <div className="w-full flex justify-between items-center gap-2 p-6">
       <p className="text-[0.65rem] font-semibold text-left whitespace-nowrap sm:text-xs">
         Bienvenido {user?.name}
       </p>
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center gap-2">
         <p className="text-xs font-semibold whitespace-nowrap">Resumen:</p>
 
         {/* Mes */}
-        <div className="relative inline-block w-fit">
-          <select
+        <div className="inline-block w-fit">
+          <Select
             aria-label="Mes"
-            value={month}
-            onChange={(e) =>
+            placeholder="Mes"
+            data={MONTHS}
+            value={month || null}
+            onChange={(value) =>
               setFilterDate({
                 day: filterDate?.day ?? null,
-                month: e.target.value ? Number(e.target.value) : null,
+                month: value ? Number(value) : null,
                 year: filterDate?.year ?? currentYear,
               })
             }
-            className={`${baseSelectClass}`}
-          >
-            <option value="">Mes</option>
-            {MONTHS.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--muted-foreground)]"
-          >
-            <path
-              fill="currentColor"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 011.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-            />
-          </svg>
+            clearable
+            variant="unstyled"
+            comboboxProps={{ withinPortal: false }}
+            rightSection={<ChevronDown size={16} />}
+            clearSectionMode="clear"
+            styles={selectStyles}
+            size="xs"
+          />
         </div>
 
         {/* Año */}
-        <div className="relative inline-block w-fit">
-          <select
+        <div className="inline-block w-fit">
+          <Select
             aria-label="Año"
+            data={yearOptions}
             value={year}
-            onChange={(e) =>
+            onChange={(value) =>
               setFilterDate({
                 day: filterDate?.day ?? null,
                 month: filterDate?.month ?? null,
-                year: e.target.value ? Number(e.target.value) : currentYear,
+                year: value ? Number(value) : currentYear,
               })
             }
-            className={`${baseSelectClass}`}
-          >
-            {yearOptions.map((y) => (
-              <option key={y.value} value={y.value}>
-                {y.label}
-              </option>
-            ))}
-          </select>
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--muted-foreground)]"
-          >
-            <path
-              fill="currentColor"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 011.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-            />
-          </svg>
+            variant="unstyled"
+            rightSection={<ChevronDown size={16} />}
+            clearSectionMode="clear"
+            comboboxProps={{ withinPortal: false }}
+            styles={selectStyles}
+            size="xs"
+          />
         </div>
       </div>
     </div>
