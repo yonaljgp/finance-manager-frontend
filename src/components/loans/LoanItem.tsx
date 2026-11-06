@@ -1,9 +1,9 @@
 import { CreditCard, Calendar, AlertCircle } from "lucide-react";
-import type Loans from "../../types/loans";
+import type { LoanCardType } from "../../types/loans";
 
 const SEVEN_DAYS_FROM_NOW = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-export default function LoanItem({ loan }: { loan: Loans }) {
+export default function LoanItem({ loan }: { loan: LoanCardType }) {
   const progress =
     ((loan.totalAmount - loan.remainingAmount) / loan.totalAmount) * 100;
 

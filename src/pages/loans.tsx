@@ -1,9 +1,9 @@
 import LoansHeader from "../components/loans/LoansHeader";
 import LoansSummary from "../components/loans/LoansSummary";
 import LoanItem from "../components/loans/LoanItem";
-import type Loans from "../types/loans";
+import type { LoanCardType } from "../types/loans";
 
-const LOANS_DATA: Loans[] = [
+const LOANS_DATA: LoanCardType[] = [
   {
     id: 1,
     name: "Préstamo Personal",
@@ -67,7 +67,7 @@ export default function Loans() {
 
       <div className="space-y-4">
         {LOANS_DATA.map((loan) => (
-          <LoanItem key={loan.id} loan={loan as Loans} />
+          <LoanItem key={loan.id} loan={loan} />
         ))}
       </div>
     </div>
