@@ -8,7 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { dataStatementType, userType } from "../../types/history";
+import type { DataStatementType, UserType } from "../../types/history";
 import { toast } from "sonner";
 
 const dateInputStyles = {
@@ -91,12 +91,12 @@ function StatementCard({
     if (!user) return;
     const { dateInit, dateEnd } = values;
     if (!dateInit || !dateEnd) return;
-    const dataUser: userType = { name: user.name, email: user.email };
+    const dataUser: UserType = { name: user.name, email: user.email };
     const params = {
       dateInit: dateInit.toISOString().split("T")[0],
       dateEnd: dateEnd.toISOString().split("T")[0],
     };
-    const dataStatement: dataStatementType = await api.get(
+    const dataStatement: DataStatementType = await api.get(
       "/transactions/statement",
       { params },
     );

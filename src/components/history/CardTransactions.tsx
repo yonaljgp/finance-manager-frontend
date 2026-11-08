@@ -9,14 +9,14 @@ import {
   X,
   ArrowLeftRight,
 } from "lucide-react";
-import { type TransactionType } from "../../types/history";
+import type { TransactionDataType } from "../../types/transactions";
 import { formatDate } from "./TransactionsTable";
 import { Modal } from "@mantine/core";
 import { captureTransactions } from "../../templates/captureTransactions";
 import { createCapture } from "../../utils/createCapture";
 
 interface CardTransactionsProps {
-  history: TransactionType;
+  history: TransactionDataType;
   opened: boolean;
   close: () => void;
 }

@@ -1,9 +1,9 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import type { dataStatementType, userType } from "../types/history";
+import type { DataStatementType, UserType } from "../types/history";
 
 interface statementProps {
-  dataStatement: dataStatementType;
-  user: userType;
+  dataStatement: DataStatementType;
+  user: UserType;
 }
 
 const ROWS_PER_PAGE = 15;

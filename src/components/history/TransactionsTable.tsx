@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowDownRight, Calendar } from "lucide-react";
-import { type TransactionType } from "../../types/history";
+import type { TransactionDataType } from "../../types/transactions";
 import { Button, EmptyState } from "@mantine/core";
 import { Search } from "lucide-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -7,11 +7,11 @@ import { useState } from "react";
 import CardTransactions from "./CardTransactions";
 
 type Props = {
-  transactions: TransactionType[];
+  transactions: TransactionDataType[];
   setResetFilters: (reset: boolean) => void;
 };
 
-export const formatDate = (dateString: string) => {
+export const formatDate = (dateString: Date | string) => {
   const date = new Date(dateString);
   const formato = date.toLocaleDateString("es-ES", {
     day: "2-digit",

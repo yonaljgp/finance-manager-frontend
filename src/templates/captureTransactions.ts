@@ -1,4 +1,4 @@
-import type { HistoryType } from "../types/history";
+import type { TransactionDataType } from "../types/transactions";
 // `?raw` le dice a Vite que importe el archivo como string plano.
 // Vite lo embebe en el bundle, sin fetch ni dependencia de filesystem.
 import receiptTemplate from "./CaptureTransactions.html?raw";
@@ -77,12 +77,12 @@ const escapeHtml = (value: string): string =>
  * Genera un HTMLElement con el recibo de la transacción, listo para que
  * `createCapture` lo serialice a PNG.
  *
- * @param data Transacción con la estructura HistoryType
+ * @param data Transacción con la estructura TransactionDataType
  * @param isDark Si el tema activo es oscuro, ajusta colores del recibo
  * @returns HTMLElement con el recibo renderizado, sin montar en el DOM
  */
 export const captureTransactions = (
-  data: HistoryType,
+  data: TransactionDataType,
   isDark: boolean = false,
 ): HTMLElement => {
   const isIncome = data.type === "ingreso";

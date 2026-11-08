@@ -1,10 +1,10 @@
 import { pdf } from "@react-pdf/renderer";
 import { Statement } from "../templates/statementPDF";
-import type { dataStatementType, userType } from "../types/history";
+import type { DataStatementType, UserType } from "../types/history";
 
 export const createPDF = async (
-  data: dataStatementType,
-  user: userType,
+  data: DataStatementType,
+  user: UserType,
 ): Promise<void> => {
   const filename = `estado_de_cuenta_${user.name}.pdf`;
   const documentNode = <Statement dataStatement={data} user={user} />;
