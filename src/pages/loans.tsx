@@ -1,75 +1,66 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import LoansHeader from "../components/loans/LoansHeader";
 import LoansSummary from "../components/loans/LoansSummary";
 import LoanItem from "../components/loans/LoanItem";
-import type { LoanCardType } from "../types/loans";
-
-const LOANS_DATA: LoanCardType[] = [
-  {
-    id: 1,
-    name: "Préstamo Personal",
-    totalAmount: 10000,
-    remainingAmount: 6500,
-    monthlyPayment: 350,
-    interestRate: 8.5,
-    nextPayment: "2026-06-01",
-    status: "pagado",
-  },
-  {
-    id: 2,
-    name: "Tarjeta de Crédito",
-    totalAmount: 5000,
-    remainingAmount: 2000,
-    monthlyPayment: 150,
-    interestRate: 18.9,
-    nextPayment: "2026-06-05",
-    status: "pendiente",
-  },
-  {
-    id: 3,
-    name: "Préstamo Estudiantil",
-    totalAmount: 15000,
-    remainingAmount: 0,
-    monthlyPayment: 0,
-    interestRate: 5.5,
-    nextPayment: null,
-    status: "pagado",
-  },
-];
+import LoansEmpty from "../components/loans/loansEmpty";
+import type { LoanDataType } from "../types/loans";
+import useLoans from "../hooks/useLoans";
 
 export default function Loans() {
+  const { getLoans } = useLoans();
+  const [loansData, setLoansData] = useState<LoanDataType[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    getLoans()
+      .then((loans) => {
+        if (isCurrent) setLoansData(loans);
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) console.error("Error fetching loans:", error);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [getLoans]);
+
   const activeLoansSummary = {
-    total: LOANS_DATA.filter((l) => l.status === "pendiente").reduce(
-      (sum, l) => sum + l.remainingAmount,
-      0,
-    ),
-    monthlyPayment: LOANS_DATA.filter((l) => l.status === "pendiente").reduce(
-      (sum, l) => sum + l.monthlyPayment,
-      0,
-    ),
-    count: LOANS_DATA.filter((l) => l.status === "pendiente").length,
+    total: loansData
+      .filter((loan) => loan.status === "Pendiente")
+      .reduce((sum, loan) => sum + loan.amount, 0),
+    count: loansData.filter((loan) => loan.status === "Pendiente").length,
   };
 
   const avgRate =
-    LOANS_DATA.filter((l) => l.status === "pendiente").reduce(
-      (sum, l) => sum + l.interestRate,
-      0,
-    ) / (activeLoansSummary.count || 1);
+    loansData
+      .filter((loan) => loan.status === "Pendiente")
+      .reduce((sum, loan) => sum + loan.interestRate, 0) /
+    (activeLoansSummary.count || 1);
 
   return (
     <div className="p-8">
-      <LoansHeader />
-      <LoansSummary
-        total={activeLoansSummary.total}
-        monthlyPayment={activeLoansSummary.monthlyPayment}
-        count={activeLoansSummary.count}
-        avgRate={avgRate}
+      <LoansHeader
+        opened={openModal}
+        openModal={() => setOpenModal(true)}
+        closeModal={() => setOpenModal(false)}
       />
 
-      <div className="space-y-4">
-        {LOANS_DATA.map((loan) => (
-          <LoanItem key={loan.id} loan={loan} />
-        ))}
-      </div>
+      {loansData.length === 0 ? (
+        <LoansEmpty openModal={() => setOpenModal(true)} />
+      ) : (
+        <div className="space-y-6">
+          <LoansSummary
+            total={activeLoansSummary.total}
+            count={activeLoansSummary.count}
+            avgRate={avgRate}
+          />
+          <LoanItem loans={loansData} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const LoanPeriodsType = [
-  "semanal",
-  "quincenal",
-  "mensual",
-  "anual",
+  "Semanal",
+  "Quincenal",
+  "Mensual",
+  "Anual",
 ] as const;
 
 export type InterestType = {
@@ -18,18 +18,20 @@ export type InterestType = {
 };
 
 export type LoanDataType = {
-  id?: number;
+  id?: number | string;
   name: string;
+  date: string;
   description: string;
   amount: number;
   interestRate: number;
-  interestperiod: (typeof LoanPeriodsType)[number];
-  paymentDate: string;
-  loanType: "debit" | "credit";
-  status?: "Pendiente" | "Pagado";
+  interestPeriod: (typeof LoanPeriodsType)[number];
+  loanType: "Debito" | "Credito";
+  status?: "Pendiente" | "Pagado" | "Cancelado";
   installmentsCount?: number;
   interests?: InterestType[];
   note?: string;
+  principalAmount: number;
+  amountIncrement: number;
 };
 
 export type LoanDataFormType = {
@@ -39,19 +41,8 @@ export type LoanDataFormType = {
   interestRate: number;
   interestPeriod: (typeof LoanPeriodsType)[number];
   date: string;
-  loanType: "debit" | "credit";
+  loanType: "Debito" | "Credito";
   note?: string;
-};
-
-export type LoanCardType = {
-  id: number;
-  name: string;
-  totalAmount: number;
-  remainingAmount: number;
-  monthlyPayment: number;
-  interestRate: number;
-  nextPayment: string | null;
-  status: "pendiente" | "pagado";
 };
 
 export const createLoanSchema = z.object({
@@ -82,7 +73,7 @@ export const createLoanSchema = z.object({
     .date({ message: "Selecciona una fecha." })
     .min(1, { message: "Selecciona una fecha." }),
   note: z.string().trim().max(300).optional(),
-  loanType: z.enum(["debit", "credit"], {
+  loanType: z.enum(["Debito", "Credito"], {
     message: "Selecciona un tipo de préstamo.",
   }),
 });

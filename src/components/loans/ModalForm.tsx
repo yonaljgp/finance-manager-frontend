@@ -40,10 +40,10 @@ function ModalForm({ opened, close }: ModalFormProps) {
       amount: 0,
       interestRate: 0,
       description: "",
-      interestPeriod: "semanal",
+      interestPeriod: "Semanal",
       date: useToLocalISODate(new Date()),
       note: "",
-      loanType: "debit",
+      loanType: "Debito",
     },
   });
 
@@ -218,8 +218,8 @@ function ModalForm({ opened, close }: ModalFormProps) {
                 }}
               >
                 <div className=" flex flex-col md:flex-row gap-4 md-gap-8 text-sm text-foreground">
-                  <Radio value="debit" label="Préstamo Otorgado" />
-                  <Radio value="credit" label="Préstamo Recibido" />
+                  <Radio value="Debito" label="Préstamo Otorgado" />
+                  <Radio value="Credito" label="Préstamo Recibido" />
                 </div>
               </Radio.Group>
             )}
